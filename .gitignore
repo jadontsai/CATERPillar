@@ -14,3 +14,16 @@
 /GUI/.gitingore
 /compiler.sh
 /gitingore
+build/
+build-*/
+build-hpc/
+build-cuda/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+*.o
+*.obj
+*.exe
+output/
+test_output/
