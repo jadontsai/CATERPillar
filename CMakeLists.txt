@@ -5,9 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 #required for std::filesystem
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
+option(CATERPILLAR_ENABLE_CUDA "Enable CUDA GPU backend" OFF)
 
 find_package(Eigen3 REQUIRED)
 
@@ -37,3 +35,28 @@ add_executable(caterpillar_cli
 )
 
 target_link_libraries(caterpillar_cli PRIVATE caterpillar_core)
+
+
+#CUDA stuff
+if(CATERPILLAR_ENABLE_CUDA)
+    enable_language(CUDA)
+    add_library(caterpillar_gpu
+        src/gpu_stuff/gpu_simulation_state.cu
+        src/gpu_stuff/gpu_runner.cu
+    )
+
+    target_include_directories(caterpillar_gpu PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/gpu_stuff
+    )
+
+    target_link_libraries(caterpillar_gpu PUBLIC caterpillar_core)
+
+    target_compile_definitions(caterpillar_core PUBLIC CATERPILLAR_ENABLE_CUDA=1)
+    target_link_libraries(caterpillar_cli PRIVATE caterpillar_gpu)
+
+    set_target_properties(caterpillar_gpu PROPERTIES
+        CUDA_STANDARD 17
+        CUDA_STANDARD_REQUIRED ON
+    )
+endif()

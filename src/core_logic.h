@@ -1,8 +1,8 @@
 #pragma once
-#include "src/parameters.h"
-#include "../src/Axon.h"
-#include "../src/Blood_Vessel.h"
-#include "../src/Glial.h"
+#include "parameters.h"
+#include "Axon.h"
+#include "Blood_Vessel.h"
+#include "Glial.h"
 #include <string>
 #include <tuple>
 #include <vector>

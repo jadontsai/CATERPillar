@@ -742,7 +742,7 @@ double AxonGammaDistribution::c2toKappa(double c2_target,
 
 // Generic clamp: keeps x within [low, high].
 template <typename T>
-constexpr const T& clamp(const T& x, const T& low, const T& high) {
+constexpr const T& my_clamp(const T& x, const T& low, const T& high) {//we need to avoid using the fcn clamp bc cpp17 has its own
     return (x < low) ? low : (x > high) ? high : x;
 }
 
@@ -771,7 +771,7 @@ double AxonGammaDistribution::draw_angle(double kappa) {
         double Fmu = erfi(rt*mu) / erfi_rt;
         double fmu = norm_c * std::exp(kappa*mu*mu);
         double step = (Fmu - u) / std::max(1e-16, fmu);
-        mu = clamp(mu - step, 0.0, 1.0);
+        mu = my_clamp(mu - step, 0.0, 1.0);
         if (std::abs(step) < 1e-12) break;
     }
     return std::acos(mu);
