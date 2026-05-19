@@ -5,9 +5,11 @@
 #include <Eigen/Dense>
 #include <nlohmann/json.hpp>
 #include <fstream>
-#include <QDir>
-#include <QString>
-
+// #include <QDir> dont want this for cli
+// #include <QString>
+#include <filesystem> // for directory creation in CLI 
+#include <stdexcept> // for exception handling in CLI
+#include <string> // for string (well okay that was obvious)
 
 CoreLogic::SimResult CoreLogic::runSimulation(const Parameters& params) {
     std::cout << "\n========================================" << std::endl;
@@ -110,19 +112,17 @@ void CoreLogic::runSimulationFromJson(const std::string& jsonFilePath) {
     // 1. General Parameters
     // ==========================================
     params.data_directory = data["GeneralParameters"]["OutputDirectory"];
-    // --- DIRECTORY CHECK & CREATION (C++14 / Qt Way) ---
-    QString dirPath = QString::fromStdString(params.data_directory);
-    QDir dir(dirPath);
-    
-    if (!dir.exists()) {
-        std::cout << "Warning: Output directory does not exist. Creating it now: " 
-                  << params.data_directory << std::endl;
-        
-        // mkpath creates the folder and any missing parent folders
-        if (!dir.mkpath(".")) {
-            std::cerr << "CRITICAL ERROR: Failed to create directory. Check permissions." << std::endl;
-            return; // Abort the simulation
+    // --- DIRECTORY CHECK & CREATION (C++17 std::filesystem)
+    try{
+        if (!std::filesystem::exists(params.data_directory)) {
+            std::cout << "Warning: Output directory does not exist. Creating it now: " 
+                      << params.data_directory << std::endl;
+            std::filesystem::create_directories(params.data_directory);
         }
+    }catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Error creating output directory: " 
+        << e.what() << std::endl;
+        throw;
     }
 
 
