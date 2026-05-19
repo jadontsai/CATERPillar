@@ -28,13 +28,15 @@ target_include_directories(caterpillar_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 #I think i can keep this public? may want to change later
-target_link_libraries(caterpillar_core PUBLIC Eigen3::Eigen)
+target_link_libraries(caterpillar_core PUBLIC 
+Eigen3::Eigen)
 
 add_executable(caterpillar_cli
     src/main_cli.cpp
 )
 
-target_link_libraries(caterpillar_cli PRIVATE caterpillar_core)
+target_link_libraries(caterpillar_cli PRIVATE 
+caterpillar_core)
 
 
 #CUDA stuff
@@ -50,13 +52,21 @@ if(CATERPILLAR_ENABLE_CUDA)
         ${CMAKE_CURRENT_SOURCE_DIR}/src/gpu_stuff
     )
 
-    target_link_libraries(caterpillar_gpu PUBLIC caterpillar_core)
+    target_link_libraries(caterpillar_gpu PUBLIC 
+    caterpillar_core)
 
-    target_compile_definitions(caterpillar_core PUBLIC CATERPILLAR_ENABLE_CUDA=1)
-    target_link_libraries(caterpillar_cli PRIVATE caterpillar_gpu)
+    target_compile_definitions(caterpillar_gpu PUBLIC 
+    CATERPILLAR_ENABLE_CUDA=1)
+
+    target_compile_definitions(caterpillar_cli PRIVATE 
+    CATERPILLAR_ENABLE_CUDA=1)
+
+    target_link_libraries(caterpillar_cli PRIVATE 
+    caterpillar_gpu)
 
     set_target_properties(caterpillar_gpu PROPERTIES
         CUDA_STANDARD 17
         CUDA_STANDARD_REQUIRED ON
+        CUDA_ARCHITECTURES "60;70;80;86;90"
     )
 endif()

@@ -8,7 +8,6 @@
 #include <string>
 
 #define CUDA_CHECK(call)                                                   \
-//same exact thing as before
     do {                                                                   \
         cudaError_t err = call;                                            \
         if (err != cudaSuccess) {                                          \

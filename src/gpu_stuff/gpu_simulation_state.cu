@@ -5,8 +5,8 @@
 #include <stdexcept>
 #include <string>
 
-#define CUDA_CHECK(call)                                                   \
 //helper function to do malloc (returns errors better)
+#define CUDA_CHECK(call)                                                   \
     do {                                                                   \
         cudaError_t err = call;                                            \
         if (err != cudaSuccess) {                                          \
