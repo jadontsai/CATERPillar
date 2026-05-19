@@ -138,9 +138,9 @@ void free_gpu_state(GpuSimulationState& state) {
     state.fronts.dir_y=nullptr;
     cudaFree(state.fronts.dir_z);
     state.fronts.dir_z=nullptr;
-    cudaFree(state fronts.object_type);
+    cudaFree(state.fronts.object_type);
     state fronts.object_type=nullptr;
-    cudaFree(state fronts.object_id);
+    cudaFree(state.fronts.object_id);
     state fronts.object_id=nullptr;
     cudaFree(state.fronts.branch_id);
     state.fronts.branch_id=nullptr;

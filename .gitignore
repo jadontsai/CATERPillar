@@ -27,3 +27,4 @@ Makefile
 *.exe
 output/
 test_output/
+output_2/
