@@ -84,7 +84,8 @@ static void allocate_candidates(
 
 void allocate_gpu_state(
     GpuSimulationState& state, 
-    const GpuParameters& params) {
+    const GpuParameters& params) 
+    {
     //the actual function we wanna call, so not static
     state.params = params;
 

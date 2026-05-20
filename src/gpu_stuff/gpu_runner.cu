@@ -1,8 +1,7 @@
 #include "gpu_runner.h"
 #include "gpu_simulation_state.h"
-
+#include "gpu_collision_check.h"
 #include <cuda_runtime.h>
-
 #include <iostream>
 #include <stdexcept>
 #include <string>
