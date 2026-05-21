@@ -65,39 +65,39 @@ void run_gpu_simulation(const GpuParameters& params) {
         state.spheres.count,
         sizeof(int),
         cudaMemcpyDeviceToHost
-    ))
+    ));
     //expected value of 1, since there's 1 sphere
     CUDA_CHECK(cudaMemcpy(
         &front_count,
         state.fronts.count,
         sizeof(int),
         cudaMemcpyDeviceToHost
-    ))
+    ));
     //expected value of 1, since there's 1 front
     CUDA_CHECK(cudaMemcpy(
         &x_0,
         state.spheres.x,
         sizeof(float),
         cudaMemcpyDeviceToHost
-    ))
+    ));
     CUDA_CHECK(cudaMemcpy(
         &y_0,
         state.spheres.y,
         sizeof(float),
         cudaMemcpyDeviceToHost
-    ))
+    ));
     CUDA_CHECK(cudaMemcpy(
         &z_0,
         state.spheres.z,
         sizeof(float),
         cudaMemcpyDeviceToHost
-    ))
+    ));
     CUDA_CHECK(cudaMemcpy(
         &r_0,
         state.spheres.r,
         sizeof(float),
         cudaMemcpyDeviceToHost
-    ))
+    ));
 
     std::cout << "sphere count (should be 1): " << sphere_count << std::endl;
     std::cout << "front count (should be 1): " << front_count << std::endl;
