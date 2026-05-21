@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(CATERPILLAR_ENABLE_CUDA "Enable CUDA GPU backend" OFF)
 
 find_package(Eigen3 REQUIRED)
+#only for CPU; just check For GPU version later
 
 add_library(caterpillar_core
     src/Axon.cpp
@@ -45,6 +46,7 @@ if(CATERPILLAR_ENABLE_CUDA)
     add_library(caterpillar_gpu
         src/gpu_stuff/gpu_simulation_state.cu
         src/gpu_stuff/gpu_runner.cu
+        src/gpu_stuff/gpu_init.cu
     )
 
     target_include_directories(caterpillar_gpu PUBLIC
