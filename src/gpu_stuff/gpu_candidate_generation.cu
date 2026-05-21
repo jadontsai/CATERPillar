@@ -74,8 +74,8 @@ void kernel_generate_candidates(GpuSimulationState state, int step) {
       float radius = state.params.min_radius;
       float overlap_factor = fmaxf(1.0f, state.params.overlap_factor);
       //error handling if the factor is less than 1 for whatever reason, but maybe that should be more graceful
-      
-      float space = (radius + state.fronts.r[front_id]) / overlap_factor;
+
+      float space = fmax(radius, state.fronts.r[front_id]) / overlap_factor;
 
       
       //store candidate
