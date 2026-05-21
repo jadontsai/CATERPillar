@@ -8,6 +8,7 @@ struct GpuParameters {
     float min_radius = 0.15f;
     float alpha = 4.0f;
     float beta = 0.25f;
+    float overlap_factor = 4.0f;
 
     int max_spheres = 100000;//small for now
     int max_growth_fronts = 1000;

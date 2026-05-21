@@ -47,6 +47,7 @@ if(CATERPILLAR_ENABLE_CUDA)
         src/gpu_stuff/gpu_simulation_state.cu
         src/gpu_stuff/gpu_runner.cu
         src/gpu_stuff/gpu_init.cu
+        src/gpu_stuff/gpu_candidate_generation.cu
     )
 
     target_include_directories(caterpillar_gpu PUBLIC
