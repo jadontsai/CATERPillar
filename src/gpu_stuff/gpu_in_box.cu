@@ -44,7 +44,7 @@ void in_box_check_kernel(const GpuSimulationState& state, bool* in_box_result) {
 
 }
 
-void gpu_box_check(GpuSimulationState& state){
+void run_in_box_check(GpuSimulationState& state){
     int threads_per_block = 256;
     int blocks = (state.candidates.total_candidates + 
         threads_per_block - 1) / threads_per_block;

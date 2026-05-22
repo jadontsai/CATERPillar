@@ -38,7 +38,7 @@ void allocate_gpu_spatial_grid(GpuSpatialGrid& grid,
     float voxel_edge_length, 
     float cell_size,
     int max_spheres,
-    int max_entries,
+    int max_entries
 );
 
 void free_gpu_spatial_grid(GpuSpatialGrid& grid);
