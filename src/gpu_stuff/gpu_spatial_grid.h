@@ -1,4 +1,4 @@
-#pramga once
+#pragma once
 
 #include "gpu_simulation_state.h"
 
