@@ -15,7 +15,7 @@
     } while (0)
 
 __global__
-void in_box_check_kernel(const GpuSimulationState& state, bool* in_box_result) {
+void in_box_check_kernel(const GpuSimulationState& state, int* in_box_result) {
     // Implementation for checking in box on GPU
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx >= state.candidates.total_candidates) {
@@ -32,7 +32,7 @@ void in_box_check_kernel(const GpuSimulationState& state, bool* in_box_result) {
     float y = state.candidates.y[idx];
     float z = state.candidates.z[idx];
     float r = state.candidates.r[idx];
-    float voxel_edge = state.params.voxel_edge;
+    float voxel_edge = state.params.voxel_edge_length;
 
     bool in_box = (x-r >= 0.0f) && (x+r <= voxel_edge) &&
                   (y-r >= 0.0f) && (y+r <= voxel_edge) &&
