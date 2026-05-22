@@ -50,7 +50,10 @@ if(CATERPILLAR_ENABLE_CUDA)
         src/gpu_stuff/gpu_candidate_generation.cu
         src/gpu_stuff/gpu_in_box.cu
         src/gpu_stuff/gpu_collision_check.cu
-    )
+        src/gpu_stuff/gpu_commit.cu
+        src/gpu_stuff/gpu_spatial_grid.cu
+        src/gpu_stuff/gpu_candidate_selection.cu
+    )#9 files
 
     target_include_directories(caterpillar_gpu PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src

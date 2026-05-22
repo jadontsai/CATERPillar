@@ -3,6 +3,7 @@
 #include "gpu_collision_check.h"
 #include "gpu_init.h"
 #include "gpu_candidate_generation.h"
+#include "gpu_commit.h"
 
 #include <cuda_runtime.h>
 #include <iostream>
@@ -95,6 +96,8 @@ void run_gpu_simulation(const GpuParameters& params) {
     // std::cout << "should be 1234 if it worked: " << host_error_code << std::endl;
     initialize_single_front_gpu(state);
     gpu_generate_candidates(state, 0);
+    run_in_box_check(state);
+    commit_candidates_gpu(state);
     write_csv("candidates.csv", state, 100);
     //launches the single front kernel with 1 block and 1 thread
 

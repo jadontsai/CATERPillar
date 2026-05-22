@@ -42,7 +42,7 @@ struct GpuGrowthFrontTable {
 };
 
 struct GpuCandidateTable {
-    //temporary scratch space for candidate spheres
+    //temporary scratch space for candidate
     float* x = nullptr;
     float* y = nullptr;
     float* z = nullptr;

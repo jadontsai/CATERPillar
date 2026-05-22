@@ -91,6 +91,12 @@ void kernel_generate_candidates(GpuSimulationState state, int step) {
 
       //metadata
       state.candidates.front_id[candidate_id] = front_id;
+      if (!state.fronts.parent_sphere_id) {
+            //if parent sphere id is null, just set it to -1
+            state.candidates.parent_id[candidate_id] = -1;
+      } else {
+            state.candidates.parent_id[candidate_id] = state.fronts.parent_sphere_id[front_id];
+      }
       state.candidates.valid[candidate_id] = 1;
       //valid for now, didnt actually check anything
       state.candidates.selected[candidate_id] = 0;
