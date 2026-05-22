@@ -15,8 +15,13 @@
     } while (0)
 
 __global__
-void collision_check_kernel(const GpuSimulationState& sim_state, bool* collision_result) {
+void collision_check_kernel(const GpuSimulationState& state, bool* collision_result) {
     // Implementation for collision checking on GPU
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < state.num_objects) {
+        //sweep and prune
+        
+        collision_result[idx] = false; // Assume no collision for now
+    }
 
-    
 }

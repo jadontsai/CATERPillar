@@ -76,6 +76,7 @@ static void allocate_candidates(
     CUDA_CHECK(cudaMalloc(&candidates.front_id, n * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&candidates.valid, n * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&candidates.selected, n * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&candidates.parent_id, n * sizeof(int)));
 
     //setting variables to zero
     CUDA_CHECK(cudaMemset(candidates.valid, 0, n * sizeof(int)));

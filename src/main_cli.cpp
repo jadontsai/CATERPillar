@@ -8,6 +8,7 @@
 #endif
 int main(int argc, char** argv) {
     #ifdef CATERPILLAR_ENABLE_CUDA
+    //for gpu testing, will be removed later
     if (argc == 2 && std::string(argv[1]) == "--gpu-smoke-test") {
         GpuParameters params;
         run_gpu_simulation(params);
@@ -15,10 +16,10 @@ int main(int argc, char** argv) {
     }
     #endif
     if (argc < 3 || std::string(argv[1]) != "--config") {
+        //cpu command line interface version
         // 3 arguements should be "./caterpillar_cli --config config.json"
         std::cerr << "You have to pass: caterpillar_cli --config path/to/config.json\n";
-        return EXIT_FAILURE;// apparently slurm jobs need this
-        //CHANGE LATER if we want more flexibility
+        return EXIT_FAILURE;
     }
 
     try {

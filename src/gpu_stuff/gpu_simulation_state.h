@@ -42,6 +42,7 @@ struct GpuGrowthFrontTable {
 };
 
 struct GpuCandidateTable {
+    //temporary scratch space for candidate spheres
     float* x = nullptr;
     float* y = nullptr;
     float* z = nullptr;
@@ -52,6 +53,7 @@ struct GpuCandidateTable {
     float* dir_z = nullptr;
 
     int* front_id = nullptr;//which candidate came from which front
+    int* parent_id = nullptr; //for collision detection (it's allowed to overlap with it's parent)
     int* valid = nullptr;
     int* selected = nullptr;//self explanatory
 

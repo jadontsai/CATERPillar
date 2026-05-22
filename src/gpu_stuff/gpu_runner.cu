@@ -66,6 +66,7 @@ int num_to_write){
 
     file << "x,y,z,r,dir_x,dir_y,dir_z,front_id,valid,selected\n";
     for (int i = 0; i < num_to_write; ++i) {
+        //it might want swc, just change that here
         file << h_x[i] << "," << h_y[i] << "," << h_z[i] << "," << h_r[i] << "," << dir_x[i] << "," << dir_y[i] << "," << dir_z[i] << "," << front_id[i] << "," << valid[i] << "," << selected[i] << "\n";
     }
     std::cout << "Wrote " << num_to_write << " candidates to " << filename << std::endl;
