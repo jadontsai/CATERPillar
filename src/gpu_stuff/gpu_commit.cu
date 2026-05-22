@@ -69,7 +69,7 @@ void commit_candidates_kernel(GpuSimulationState state) {
 }//end namespace
 
 
-void commit_candidates_gpu(const GpuSimulationState& state) {
+void commit_candidates_gpu(GpuSimulationState& state) {
     int front_count = 0;
     CUDA_CHECK(cudaMemcpy(
         &front_count,
