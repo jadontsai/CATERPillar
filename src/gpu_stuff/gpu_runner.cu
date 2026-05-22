@@ -3,7 +3,12 @@
 #include "gpu_collision_check.h"
 #include "gpu_init.h"
 #include "gpu_candidate_generation.h"
+#include "gpu_candidate_selection.h"
 #include "gpu_commit.h"
+#include "gpu_in_box.h"
+#include "gpu_launch_config.h"
+#include "gpu_spatial_grid.h"
+
 
 #include <cuda_runtime.h>
 #include <iostream>
