@@ -109,7 +109,7 @@ void run_gpu_simulation(const GpuParameters& params) {
     run_in_box_check(state);
     std::cout << "after run_in_box_check" << std::endl;
 
-    select_valid_candidate_gpu(state)
+    select_valid_candidate_gpu(state);
     std::cout << "after select_valid_candidate_gpu" << std::endl;
 
     write_csv("candidates.csv", state, 100);
