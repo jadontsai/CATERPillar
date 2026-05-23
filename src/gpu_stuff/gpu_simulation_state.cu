@@ -170,6 +170,8 @@ void free_gpu_state(GpuSimulationState& state) {
     state.candidates.front_id=nullptr;
     cudaFree(state.candidates.valid);
     state.candidates.valid=nullptr;
+    cudaFree(state.candidates.parent_id);
+    state.candidates.parent_id = nullptr;
     cudaFree(state.candidates.selected);
     state.candidates.selected=nullptr;
     cudaFree(state.done);
