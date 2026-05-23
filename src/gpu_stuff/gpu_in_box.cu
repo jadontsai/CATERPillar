@@ -15,7 +15,7 @@
     } while (0)
 
 __global__
-void in_box_check_kernel(const GpuSimulationState& state, int* in_box_result) {
+void in_box_check_kernel(GpuSimulationState state) {
     // Implementation for checking in box on GPU
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx >= state.candidates.total_candidates) {
@@ -23,10 +23,8 @@ void in_box_check_kernel(const GpuSimulationState& state, int* in_box_result) {
     }
 
     if (state.candidates.valid[idx] == 0) {
-        in_box_result[idx] = false;// if it's not valid somehow already, no need to check
         return;
     }
-
     //for less memory accesses, load into registers
     float x = state.candidates.x[idx];
     float y = state.candidates.y[idx];
@@ -39,7 +37,7 @@ void in_box_check_kernel(const GpuSimulationState& state, int* in_box_result) {
                   (z-r >= 0.0f) && (z+r <= voxel_edge);
 
     if (!in_box) {
-        state.candidates.valid[idx] = false;
+        state.candidates.valid[idx] = 0;
     }
 
 }
@@ -49,7 +47,7 @@ void run_in_box_check(GpuSimulationState& state){
     int blocks = (state.candidates.total_candidates + 
         threads_per_block - 1) / threads_per_block;
     
-    in_box_check_kernel<<<blocks, threads_per_block>>>(state, state.candidates.valid);
+    in_box_check_kernel<<<blocks, threads_per_block>>>(state);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     }
