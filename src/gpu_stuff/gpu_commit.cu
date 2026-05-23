@@ -83,7 +83,7 @@ void commit_candidates_gpu(GpuSimulationState& state) {
     }
     int blocks = gpu_num_blocks(front_count);
 
-    commit_candidates_kernel<<<blocks, THREADS_PER_BLOCK>>>(state);
+    commit_candidates_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(state);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 }
