@@ -131,7 +131,7 @@ void fill_sphere_grid_entries_gpu(
         for (int y = y_min; y <= y_max; ++y) {
             for (int x = x_min; x <= x_max; ++x) {
                 int flat_cell_idx = flatten_index(x, y, z, grid);
-                int write_idx = entry_start + entry_idx;                grid.grid_sphere_id[entry_start + entry_idx] = flat_cell_idx;
+                int write_idx = entry_start + entry_idx;                
                 grid.grid_cell_id[write_idx] = flat_cell_idx;
                 grid.grid_sphere_id[write_idx] = sphere_idx;
                 ++entry_idx;
@@ -142,12 +142,10 @@ void fill_sphere_grid_entries_gpu(
 }
 
 __global__
-void create_cell_range(
-    GpuSimulationState state,
-    GpuSpatialGrid grid
-){//runs after sorting, creates starting and ending indices/pointers
+void create_cell_range(GpuSpatialGrid grid)
+{//runs after sorting, creates starting and ending indices/pointers
     int entry_idx = blockIdx.x * blockDim.x + threadIdx.x;
-    int total_entries = grid.num_entries;
+    int total_entries = *grid.num_entries;
     //if out of bounds
     if (entry_idx >= total_entries) return;
 
@@ -171,7 +169,6 @@ void create_cell_range(
 }//namespace ends
 
 
-__global__
 void allocate_gpu_spatial_grid(GpuSpatialGrid& grid,
     float cell_size,
     float voxel_edge_length,
@@ -183,10 +180,10 @@ void allocate_gpu_spatial_grid(GpuSpatialGrid& grid,
     grid.grid_dim_y = grid.grid_dim_x;
     grid.grid_dim_z = grid.grid_dim_x;
 
-    int total_cells = grid.grid_dim_x * grid.grid_dim_y * grid.grid_dim_z;
+    grid.num_cells = grid.grid_dim_x * grid.grid_dim_y * grid.grid_dim_z;
 
     grid.max_spheres = max_spheres;
-    grid.grid_entries = max_entries;
+    grid.max_entries = max_entries;
 
     //allocating arrays
     CUDA_CHECK(cudaMalloc(&grid.sphere_touching_num, max_spheres * sizeof(int)));
@@ -269,7 +266,9 @@ void build_gpu_spatial_grid(GpuSimulationState state, GpuSpatialGrid& grid) {
     CUDA_CHECK(cudaMemcpy(grid.num_entries, 
     &total_entries, sizeof(int), cudaMemcpyHostToDevice));
 
-    fill_sphere_grid_entries_gpu<<<blocks_for_spheres, threads_per_block>>>(state, grid);
+    int sphere_blocks = gpu_num_blocks(sphere_count);
+
+    fill_sphere_grid_entries_gpu<<<sphere_blocks, GPU_THREADS_PER_BLOCK>>>(state, grid);
    
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
@@ -287,8 +286,9 @@ void build_gpu_spatial_grid(GpuSimulationState state, GpuSpatialGrid& grid) {
     CUDA_CHECK(cudaMemset(grid.cell_start, -1, grid.num_cells * sizeof(int)));
     CUDA_CHECK(cudaMemset(grid.cell_end, -1, grid.num_cells * sizeof(int)));
 
-    int threads_per_block = gpu_num_blocks(total_entries);
-    build_cell_range<<<blocks_for_entries, threads_per_block>>>(state, grid);
+    int entry_blocks = gpu_num_blocks(total_entries);
+
+    create_cell_range<<<entry_blocks, GPU_THREADS_PER_BLOCK>>>(grid);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 }
