@@ -62,8 +62,10 @@ void cell_bounds(
     max_z = clamp_int(max_z, 0, grid.grid_dim_z - 1);
 }
 
+
+
 __global__
-void num_sphere_grid_entries_gpu(
+void num_sphere_grid_entries_kernel(
     GpuSimulationState state,
     GpuSpatialGrid grid
 )   
@@ -94,7 +96,7 @@ void num_sphere_grid_entries_gpu(
     //stores the count of entries for each sphere, which 
     // will be used to compute offsets for where to write
     // the actual entries in the next kernel
-    grid.sphere_grid_entry_counts[sphere_idx] = entries_for_sphere;
+    grid.sphere_touching_num[sphere_idx] = entries_for_sphere;
 }
 
 __global__
@@ -122,15 +124,18 @@ void fill_sphere_grid_entries_gpu(
     //uses prefix sum of entry counts to find the starting index in 
     // the grid entries array where this sphere's
     //  entries should be written
-    int entry_start = grid.sphere_grid_entry_offsets[sphere_idx];
+    int entry_start = grid.sphere_touching_num_offset[sphere_idx];
     int entry_idx = 0;
 
     for (int z = z_min; z <= z_max; ++z) {
         for (int y = y_min; y <= y_max; ++y) {
             for (int x = x_min; x <= x_max; ++x) {
                 int flat_cell_idx = flatten_index(x, y, z, grid);
-                grid.sphere_grid_entries[entry_start + entry_idx] = flat_cell_idx;
+                int write_idx = entry_start + entry_idx;                grid.grid_sphere_id[entry_start + entry_idx] = flat_cell_idx;
+                grid.grid_cell_id[write_idx] = flat_cell_idx;
+                grid.grid_sphere_id[write_idx] = sphere_idx;
                 ++entry_idx;
+
             }
         }
     }
@@ -142,32 +147,32 @@ void create_cell_range(
     GpuSpatialGrid grid
 ){//runs after sorting, creates starting and ending indices/pointers
     int entry_idx = blockIdx.x * blockDim.x + threadIdx.x;
-    int total_entries = grid.total_sphere_grid_entries;
+    int total_entries = grid.num_entries;
     //if out of bounds
     if (entry_idx >= total_entries) return;
 
-    int cell_idx = grid.sphere_grid_entries[entry_idx];
+    int cell_idx = grid.grid_cell_id[entry_idx];
 
     if(entry_idx == 0){
-        grid.cell_range_start[cell_idx] = 0;
+        grid.cell_start[cell_idx] = 0;
     }
     else{
-        int prev_cell_idx = grid.sphere_grid_entries[entry_idx - 1];
+        int prev_cell_idx = grid.grid_cell_id[entry_idx - 1];
         if(cell_idx != prev_cell_idx){
             //transition between cells, so put the pointers here
-            grid.cell_range_start[cell_idx] = entry_idx;
-            grid.cell_range_end[prev_cell_idx] = entry_idx;
+            grid.cell_start[cell_idx] = entry_idx;
+            grid.cell_end[prev_cell_idx] = entry_idx;
         }
     }
     if(entry_idx == total_entries - 1){
-        grid.cell_range_end[cell_idx] = total_entries;
+        grid.cell_end[cell_idx] = total_entries;
     }
 }
 }//namespace ends
 
 
 __global__
-void allocate_spatial_grid_gpu(GpuSpatialGrid* grid,
+void allocate_gpu_spatial_grid(GpuSpatialGrid& grid,
     float cell_size,
     float voxel_edge_length,
     int max_spheres, 
@@ -181,14 +186,14 @@ void allocate_spatial_grid_gpu(GpuSpatialGrid* grid,
     int total_cells = grid.grid_dim_x * grid.grid_dim_y * grid.grid_dim_z;
 
     grid.max_spheres = max_spheres;
-    grid.total_sphere_grid_entries = max_entries;
+    grid.grid_entries = max_entries;
 
     //allocating arrays
-    CUDA_CHECK(cudaMalloc(&grid.sphere_grid_entry_counts, max_spheres * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&grid.sphere_grid_entry_offsets, max_spheres * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&grid.sphere_touching_num, max_spheres * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&grid.sphere_touching_num_offset, max_spheres * sizeof(int)));
 
-    CUDA_CHECK(cudaMalloc(&grid.cell_start, grid.total_cells * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&grid.cell_end, grid.total_cells * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&grid.cell_start, grid.num_cells * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&grid.cell_end, grid.num_cells * sizeof(int)));
 
     CUDA_CHECK(cudaMalloc(&grid.grid_cell_id, max_entries * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&grid.grid_sphere_id, max_entries * sizeof(int)));
@@ -196,9 +201,9 @@ void allocate_spatial_grid_gpu(GpuSpatialGrid* grid,
     CUDA_CHECK(cudaMemset(grid.num_entries, 0, sizeof(int)));
 }
 
-void free_spatial_grid_gpu(GpuSpatialGrid* grid) {
-    CUDA_CHECK(cudaFree(grid.sphere_grid_entry_counts));
-    CUDA_CHECK(cudaFree(grid.sphere_grid_entry_offsets));
+void free_gpu_spatial_grid(GpuSpatialGrid & grid) {
+    CUDA_CHECK(cudaFree(grid.sphere_touching_num));
+    CUDA_CHECK(cudaFree(grid.sphere_touching_num_offset));
     CUDA_CHECK(cudaFree(grid.cell_start));
     CUDA_CHECK(cudaFree(grid.cell_end));
     CUDA_CHECK(cudaFree(grid.grid_cell_id));
@@ -206,8 +211,8 @@ void free_spatial_grid_gpu(GpuSpatialGrid* grid) {
     CUDA_CHECK(cudaFree(grid.num_entries));
 
     //to avoid accidental use
-    grid.sphere_grid_entry_counts = nullptr;
-    grid.sphere_grid_entry_offsets = nullptr;
+    grid.sphere_touching_num = nullptr;
+    grid.sphere_touching_num_offset = nullptr;
     grid.cell_start = nullptr;      
     grid.cell_end = nullptr;
     grid.grid_cell_id = nullptr;
@@ -215,7 +220,7 @@ void free_spatial_grid_gpu(GpuSpatialGrid* grid) {
     grid.num_entries = nullptr;
 }
 
-void build_spatial_grid_gpu(GpuSimulationState state, GpuSpatialGrid grid) {
+void build_gpu_spatial_grid(GpuSimulationState state, GpuSpatialGrid& grid) {
     int sphere_count = 0;
     //thrust wants need count to be on host, so we have
     //to copy it there
@@ -231,17 +236,17 @@ void build_spatial_grid_gpu(GpuSimulationState state, GpuSpatialGrid grid) {
         return;
     }
 
-    int spheres_per_block = gpu_max_threads_per_block(sphere_count);
+    int spheres_per_block = gpu_num_blocks(sphere_count);
     //launches one thread per sphere
-    count_sphere_grid_entries_gpu<<<spheres_per_block, GPU_THREADS_PER_BLOCK>>>
+    num_sphere_grid_entries_kernel<<<spheres_per_block, GPU_THREADS_PER_BLOCK>>>
     (state, grid);
 
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     
     //prefix sum, wrapping pointers
-    thrust::device_ptr<int> entry_counts_ptr(grid.sphere_grid_entry_counts);
-    thrust::device_ptr<int> entry_offsets_ptr(grid.sphere_grid_entry_offsets);
+    thrust::device_ptr<int> entry_counts_ptr(grid.sphere_touching_num);
+    thrust::device_ptr<int> entry_offsets_ptr(grid.sphere_touching_num_offset);
     //actually computing the sum
     thrust::exclusive_scan(entry_counts_ptr, 
         entry_counts_ptr + sphere_count, 
@@ -249,19 +254,19 @@ void build_spatial_grid_gpu(GpuSimulationState state, GpuSpatialGrid grid) {
 
     int last_count = 0;
     int last_offset = 0;
-    CUDA_CHECK(cudaMemcpy(&last_count, grid.sphere_grid_entry_counts + sphere_count - 1,
+    CUDA_CHECK(cudaMemcpy(&last_count, grid.sphere_touching_num + sphere_count - 1,
          sizeof(int), cudaMemcpyDeviceToHost));
-    CUDA_CHECK(cudaMemcpy(&last_offset, grid.sphere_grid_entry_offsets + sphere_count - 1,
+    CUDA_CHECK(cudaMemcpy(&last_offset, grid.sphere_touching_num_offset + sphere_count - 1,
          sizeof(int), cudaMemcpyDeviceToHost));
 
     int total_entries = last_offset + last_count;
 
-    if (total_entries > grid.total_sphere_grid_entries) {
+    if (total_entries > grid.max_entries) {
         throw std::runtime_error("Need bigger max entries");
     }
 
     //kernel needs total entries
-    CUDA_CHECK(cudaMemcpy(grid.total_entries, 
+    CUDA_CHECK(cudaMemcpy(grid.num_entries, 
     &total_entries, sizeof(int), cudaMemcpyHostToDevice));
 
     fill_sphere_grid_entries_gpu<<<blocks_for_spheres, threads_per_block>>>(state, grid);
@@ -279,10 +284,10 @@ void build_spatial_grid_gpu(GpuSimulationState state, GpuSpatialGrid grid) {
         grid_sphere_id_ptr
     );
 
-    CUDA_CHECK(cudaMemset(grid.cell_start, -1, grid.total_cells * sizeof(int)));
-    CUDA_CHECK(cudaMemset(grid.cell_end, -1, grid.total_cells * sizeof(int)));
+    CUDA_CHECK(cudaMemset(grid.cell_start, -1, grid.num_cells * sizeof(int)));
+    CUDA_CHECK(cudaMemset(grid.cell_end, -1, grid.num_cells * sizeof(int)));
 
-    int threads_per_block = gpu_max_threads_per_block(total_entries);
+    int threads_per_block = gpu_num_blocks(total_entries);
     build_cell_range<<<blocks_for_entries, threads_per_block>>>(state, grid);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
