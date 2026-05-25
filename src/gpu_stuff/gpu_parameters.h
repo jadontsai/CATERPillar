@@ -10,10 +10,10 @@ struct GpuParameters {
     float beta = 0.25f;
     float overlap_factor = 4.0f;
 
-    int max_spheres = 100000;//small for now
-    int max_growth_fronts = 1000;
+    int max_spheres = 10000000;//small for now
+    int max_growth_fronts = 10000;
     int candidates_per_front = 256;
-    int max_steps = 100;
+    int max_steps = 10000;
 
     unsigned long long seed = 1;// apparently gpus like 64 bit seeds? anyways 1 is default
 };
