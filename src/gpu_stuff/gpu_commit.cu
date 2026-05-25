@@ -1,4 +1,4 @@
-#include <gpu_commit.h>
+#include "gpu_commit.h"//oops
 #include "gpu_launch_config.h"
 #include <cuda_runtime.h>
 #include <stdexcept>
@@ -30,7 +30,7 @@ void commit_candidates_kernel(GpuSimulationState state) {
     int selected_candidate_id = -1;
 
     for (int candidate_id = start; candidate_id < end; ++candidate_id) {
-        if (state.candidates.valid[candidate_id] != 0) {
+        if (state.candidates.selected[candidate_id] != 0) {
             selected_candidate_id = candidate_id;
             break;
         }
@@ -43,6 +43,7 @@ void commit_candidates_kernel(GpuSimulationState state) {
 
     int new_sphere_index = atomicAdd(state.spheres.count, 1);
     if (new_sphere_index >= state.params.max_spheres) {
+        atomicSub(state.spheres.count, 1);//undo the addition
         *state.error_code = 1; //overflow
         return;
     }
@@ -64,7 +65,7 @@ void commit_candidates_kernel(GpuSimulationState state) {
     state.fronts.dir_x[front_id] = state.candidates.dir_x[selected_candidate_id];
     state.fronts.dir_y[front_id] = state.candidates.dir_y[selected_candidate_id];
     state.fronts.dir_z[front_id] = state.candidates.dir_z[selected_candidate_id];
-    state.fronts.parent_sphere_id[front_id] = parent_sphere_id;
+    state.fronts.parent_sphere_id[front_id] = new_sphere_index;//made change here, needs to grow from new sphere
      }
 }//end namespace
 
