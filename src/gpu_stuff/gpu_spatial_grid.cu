@@ -217,7 +217,7 @@ void free_gpu_spatial_grid(GpuSpatialGrid & grid) {
     grid.num_entries = nullptr;
 }
 
-void build_gpu_spatial_grid(GpuSimulationState state, GpuSpatialGrid& grid) {
+void build_gpu_spatial_grid(GpuSimulationState& state, GpuSpatialGrid& grid) {
     int sphere_count = 0;
     //thrust wants need count to be on host, so we have
     //to copy it there
