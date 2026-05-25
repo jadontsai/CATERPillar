@@ -15,6 +15,7 @@
     } while (0)
 //i am being very lazy and duplicating functions rn
 //maybe one day these get put into their own file
+namespace {
 __device__
 
 unsigned int hash(unsigned int x) {
@@ -54,7 +55,7 @@ float sample_gamma_integer_shape(unsigned int seed, int shape, float scale){
       }
       return scale *sum;
       }
-
+    }
 __global__
 //function makes just one front (pretty much a "smokier" smoke test)
 void initialize_single_front_kernel(GpuSimulationState state) {

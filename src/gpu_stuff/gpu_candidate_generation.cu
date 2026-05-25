@@ -13,7 +13,7 @@
                 std::string("CUDA error: ") + cudaGetErrorString(err));    \
         }                                                                  \
       } while (0)
-
+namespace{
 __device__//called from gpu, runs on gpu
 unsigned int hash(unsigned int x) {
       //some psuedo random hashing function
@@ -90,7 +90,7 @@ float sample_gamma_integer(unsigned int seed, int shape, float scale){
       }
       return scale *sum;
       }
-
+}
 __device__
 float sample_standard_normal_box_muller(unsigned int seed) {
       //normally distributed radii for axon 
