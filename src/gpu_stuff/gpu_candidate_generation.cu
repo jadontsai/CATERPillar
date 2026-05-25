@@ -182,11 +182,20 @@ void kernel_generate_candidates(GpuSimulationState state, int step) {
       //float radius = state.params.min_radius;
       int shape = static_cast<int>(roundf(state.params.alpha));
       //float radius = sample_gamma_integer(seed + 50000u, shape, state.params.beta);
-      float previous_radius = state.fronts.r[front_id];
-      //Temporary beading strength.
-      float radius_stddev = 0.05f * previous_radius;
-      float radius = sample_normal_box_muller(seed + 50000u,previous_radius, radius_stddev);
+      // float previous_radius = state.fronts.r[front_id];
+      // //Temporary beading strength.
+      // float radius_stddev = 0.05f * previous_radius;
+      // float radius = sample_normal_box_muller(seed + 50000u,previous_radius, radius_stddev);
 
+      // radius = fmaxf(radius, state.params.min_radius);
+
+      float base_radius = 1.0f;  //temporary test value to clamp radius a bit better
+      float radius = sample_normal_box_muller(
+      seed + 50000u,
+      base_radius,
+      0.05f * base_radius
+      );
+      radius = fminf(fmaxf(radius, 0.8f * base_radius), 1.2f * base_radius);//also temporary clamp values
       radius = fmaxf(radius, state.params.min_radius);
       float overlap_factor = fmaxf(1.0f, state.params.overlap_factor);
       //error handling if the factor is less than 1 for whatever reason, but maybe that should be more graceful
