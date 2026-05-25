@@ -162,7 +162,7 @@ void run_gpu_simulation(const GpuParameters& params) {
     // std::cout << "should be 1234 if it worked: " << host_error_code << std::endl;
     initialize_single_front_gpu(state);
     std::cout << "after initialize_single_front_gpu" << std::endl;
-    for (int i = 0; i <10; ++i){
+    for (int i = 0; i <10000; ++i){
         build_gpu_spatial_grid(state, grid);
         std::cout << "after build_gpu_spatial_grid" << i << std::endl;
 
@@ -176,7 +176,7 @@ void run_gpu_simulation(const GpuParameters& params) {
 
         select_valid_candidate_gpu(state);
         std::cout << "after select_valid_candidate_gpu" << std::endl;
-        write_csv("candidates_step_" + std::to_string(i) + ".csv", state, 100);
+        write_csv("candidates_step_" + std::to_string(i) + ".csv", state, 258);
         std::cout << "after write_csv_temp" << std::endl;
         commit_candidates_gpu(state);
         std::cout << "after commit_candidates_gpu" << std::endl;
