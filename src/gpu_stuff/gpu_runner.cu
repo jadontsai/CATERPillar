@@ -102,8 +102,8 @@ void run_gpu_simulation(const GpuParameters& params) {
     // std::cout << "should be 1234 if it worked: " << host_error_code << std::endl;
     initialize_single_front_gpu(state);
     std::cout << "after initialize_single_front_gpu" << std::endl;
-
-    gpu_generate_candidates(state, 0);
+    for (int i = 0; i <10; ++i){}
+    gpu_generate_candidates(state, i);
     std::cout << "after gpu_generate_candidates" << std::endl;
 
     run_in_box_check(state);
@@ -111,12 +111,25 @@ void run_gpu_simulation(const GpuParameters& params) {
 
     select_valid_candidate_gpu(state);
     std::cout << "after select_valid_candidate_gpu" << std::endl;
+    commit_candidates_gpu(state);
+    std::cout << "after commit_candidates_gpu" << std::endl;
 
-    write_csv("candidates.csv", state, 100);
+
+}
+    write_csv("candidates.csv", state, 100000);
     std::cout << "after write_csv" << std::endl;
 
-    commit_candidates_gpu(state);
+    int sphere_count = 0;
 
+    CUDA_CHECK(cudaMemcpy(
+        &sphere_count,
+        state.spheres.count,
+        sizeof(int),
+        cudaMemcpyDeviceToHost
+    ));
+
+    std::cout << "sphere count after commit: "
+            << sphere_count << std::endl;
 
     //launches the single front kernel with 1 block and 1 thread
 
