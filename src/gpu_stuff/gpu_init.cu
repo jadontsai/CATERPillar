@@ -15,6 +15,7 @@
     } while (0)
 //i am being very lazy and duplicating functions rn
 //maybe one day these get put into their own file
+__device__
 
 unsigned int hash(unsigned int x) {
       //some psuedo random hashing function
