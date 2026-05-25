@@ -13,6 +13,46 @@
                 std::string("CUDA error: ") + cudaGetErrorString(err));    \
         }                                                                  \
     } while (0)
+//i am being very lazy and duplicating functions rn
+//maybe one day these get put into their own file
+
+unsigned int hash(unsigned int x) {
+      //some psuedo random hashing function
+      x = ((x >> 16) ^ x) * 0x6767f2a;
+      x = ((x >> 16) ^ x) * 0x41d923b;
+      x = (x >> 16) ^ x;
+      return x;
+}
+
+__device__
+float random_float(unsigned int seed) {
+      //returns a random float between 0 and 1 based on the seed
+      return static_cast<float>(hash(seed) &0x00FFFFFF)/16777216.0f;;
+}
+__device__
+float safe_rsqrt(float x) {
+      return rsqrtf(fmaxf(x, 1e-12f));
+      //a bit safer behaviour than 0
+}
+
+__device__
+void normalize3(float& x, float& y, float& z) {
+      float inv_norm = safe_rsqrt(x * x + y * y + z * z);
+      x *= inv_norm;
+      y *= inv_norm;
+      z *= inv_norm;
+}
+
+__device__
+float sample_gamma_integer(unsigned int seed, int shape, float scale){
+      float sum = 0.0f;
+      for(int i = 0; i< shape; ++i){
+            float u = random_float(seed + 1234u * static_cast<unsigned int>(i));
+            u = fmaxf(u, 1e-7f);
+            sum += -logf(u);
+      }
+      return scale *sum;
+      }
 
 __global__
 //function makes just one front (pretty much a "smokier" smoke test)
