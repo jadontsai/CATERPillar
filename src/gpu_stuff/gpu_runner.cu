@@ -79,6 +79,58 @@ int num_to_write){
     std::cout << "Wrote " << num_to_write << " candidates to " << filename << std::endl;
 }
 
+void write_final_csv(
+    const std::string& filename,
+    GpuSimulationState& state
+) {//only writes commited spheres
+    int sphere_count = 0;
+
+    CUDA_CHECK(cudaMemcpy(
+        &sphere_count,
+        state.spheres.count,
+        sizeof(int),
+        cudaMemcpyDeviceToHost
+    ));
+
+    std::vector<float> h_x(sphere_count);
+    std::vector<float> h_y(sphere_count);
+    std::vector<float> h_z(sphere_count);
+    std::vector<float> h_r(sphere_count);
+    std::vector<int> h_object_type(sphere_count);
+    std::vector<int> h_object_id(sphere_count);
+    std::vector<int> h_branch_id(sphere_count);
+    std::vector<int> h_parent_sphere_id(sphere_count);
+
+    CUDA_CHECK(cudaMemcpy(h_x.data(), state.spheres.x, sphere_count * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_y.data(), state.spheres.y, sphere_count * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_z.data(), state.spheres.z, sphere_count * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_r.data(), state.spheres.r, sphere_count * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_object_type.data(), state.spheres.object_type, sphere_count * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_object_id.data(), state.spheres.object_id, sphere_count * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_branch_id.data(), state.spheres.branch_id, sphere_count * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_parent_sphere_id.data(), state.spheres.parent_sphere_id, sphere_count * sizeof(int), cudaMemcpyDeviceToHost));
+
+    std::ofstream file(filename);
+
+    if (!file) {
+        throw std::runtime_error("Could not write to" + filename);
+    }
+    file << "sphere_id,x,y,z,r,object_type,object_id,branch_id,parent_sphere_id\n";
+
+    for (int i = 0; i < sphere_count; ++i) {
+        file << i << ","
+             << h_x[i] << ","
+             << h_y[i] << ","
+             << h_z[i] << ","
+             << h_r[i] << ","
+             << h_object_type[i] << ","
+             << h_object_id[i] << ","
+             << h_branch_id[i] << ","
+             << h_parent_sphere_id[i] << "\n";
+    }
+    std::cout << "Wrote " << sphere_count
+              << " spheres to " << filename << std::endl;
+}
 void run_gpu_simulation(const GpuParameters& params) {
     std::cout << "doing gpu stuff..." << std::endl;
 
@@ -131,7 +183,7 @@ void run_gpu_simulation(const GpuParameters& params) {
     }
 
 
-    write_csv("final.csv", state, 100000);
+    write_final_csv("final.csv", state);
     std::cout << "after write_csv_final" << std::endl;
 
     int sphere_count = 0;
