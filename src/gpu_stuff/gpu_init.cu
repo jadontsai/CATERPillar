@@ -24,14 +24,26 @@ void initialize_single_front_kernel(GpuSimulationState state) {
 
     float center = state.params.voxel_edge_length * 0.5f;
     //middle of the voxel, just for sanity checking
-    float radius = state.params.min_radius;
-    //both as given from GpuParameters
+
+    //making radius gamma distributed
+    int shape = static_cast<int>(roundf(state.params.alpha));
+    shape = max(shape, 1);
+
+    float initial_radius = sample_gamma_integer_shape(static_cast<unsigned int>(state.params.seed + 999u),
+        shape,
+        state.params.beta
+    );
+
+    initial_radius = fmaxf(initial_radius, state.params.min_radius);
+
+    state.spheres.r[0] = initial_radius;
+    //front radius is same as original radius for now
+    state.fronts.r[0] = initial_radius;
 
     //for future me, this is very intentionally a structure-of-arrays instead of an array of structs
     state.spheres.x[0] = center;
     state.spheres.y[0] = center;
     state.spheres.z[0] = center;
-    state.spheres.r[0] = radius;
 
     state.spheres.object_type[0] = 0;     
     //object type is the type of cell, and we define 0 as axon
@@ -47,7 +59,6 @@ void initialize_single_front_kernel(GpuSimulationState state) {
     state.fronts.x[0] = center;
     state.fronts.y[0] = center;
     state.fronts.z[0] = center;
-    state.fronts.r[0] = radius;
     //for now the same place as the sphere
 
     state.fronts.dir_x[0] = 0.0f;

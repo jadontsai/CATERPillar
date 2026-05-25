@@ -91,6 +91,29 @@ float sample_gamma_integer(unsigned int seed, int shape, float scale){
       return scale *sum;
       }
 
+__device__
+float sample_standard_normal_box_muller(unsigned int seed) {
+      //normally distributed radii for axon 
+      // pertubation (like how much each sphere changes)
+      float u1 = random_float(seed + 1u);
+      float u2 = random_float(seed + 2u);
+
+      u1 = fmaxf(u1, 1e-7f);
+
+      float mag = sqrtf(-2.0f * logf(u1));
+      float angle = 2.0f * 3.141592f * u2;
+
+      return mag * cosf(angle);
+}
+
+__device__
+float sample_normal_box_muller(
+      unsigned int seed,
+      float mean,
+      float stddev
+) {
+      return mean + stddev * sample_standard_normal_box_muller(seed);
+}
 __global__
 void kernel_generate_candidates(GpuSimulationState state, int step) {
       //kernel that actually generates candidates
@@ -158,7 +181,12 @@ void kernel_generate_candidates(GpuSimulationState state, int step) {
       //==========================================================================
       //float radius = state.params.min_radius;
       int shape = static_cast<int>(roundf(state.params.alpha));
-      float radius = sample_gamma_integer(seed + 50000u, shape, state.params.beta);
+      //float radius = sample_gamma_integer(seed + 50000u, shape, state.params.beta);
+      float previous_radius = state.fronts.r[front_id];
+      //Temporary beading strength.
+      float radius_stddev = 0.05f * previous_radius;
+      float radius = sample_normal_box_muller(seed + 50000u,previous_radius, radius_stddev);
+
       radius = fmaxf(radius, state.params.min_radius);
       float overlap_factor = fmaxf(1.0f, state.params.overlap_factor);
       //error handling if the factor is less than 1 for whatever reason, but maybe that should be more graceful
