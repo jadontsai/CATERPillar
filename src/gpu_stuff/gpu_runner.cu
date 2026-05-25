@@ -160,8 +160,8 @@ void run_gpu_simulation(const GpuParameters& params) {
     // ));
 
     // std::cout << "should be 1234 if it worked: " << host_error_code << std::endl;
-    initialize_single_front_gpu(state);
-    std::cout << "after initialize_single_front_gpu" << std::endl;
+    initialize_multiple_fronts_gpu(state, 67);
+    std::cout << "after initialize_multiple_fronts_gpu" << std::endl;
     for (int i = 0; i <1000; ++i){
         build_gpu_spatial_grid(state, grid);
         std::cout << "after build_gpu_spatial_grid" << i << std::endl;

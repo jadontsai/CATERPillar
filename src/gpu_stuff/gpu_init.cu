@@ -1,7 +1,7 @@
 #include "gpu_init.h"
 
 #include <cuda_runtime.h>
-
+#include "gpu_launch_config.h"//for num blocks
 #include <stdexcept>
 #include <string>
 
@@ -118,6 +118,88 @@ void initialize_single_front_kernel(GpuSimulationState state) {
 
     *state.fronts.count = 1;
 }
+__global__
+void initialize_multiple_fronts_kernel(GpuSimulationState state, int num_fronts){
+    int id = blockIdx.x * blockDim.x + threadIdx.x;
+    if (id >= num_fronts||id >= state.spheres.capacity || id >= state.fronts.capacity) {
+        return;
+    }
+
+    float voxel_edge = state.params.voxel_edge_length;
+
+    //temporary deterministic placement to spread around fronts
+    int grid_width = 8;
+
+    int ix = id % grid_width;
+    int iy = id / grid_width;
+
+    float spacing = 5.0f;  // temp
+
+    float center = 0.5f * voxel_edge;
+
+    float x = center + spacing * static_cast<float>(ix - grid_width / 2);
+    float y = center + spacing * static_cast<float>(iy - grid_width / 2);
+    float z = center;
+
+    float r = state.params.min_radius;
+
+    //Initial committed sphere for this front
+    state.spheres.x[id] = x;
+    state.spheres.y[id] = y;
+    state.spheres.z[id] = z;
+    state.spheres.r[id] = r;
+
+    state.spheres.object_type[id] = 0;
+    state.spheres.object_id[id] = id;
+    state.spheres.branch_id[id] = 0;
+    state.spheres.parent_sphere_id[id] = -1;
+
+    state.fronts.x[id] = x;
+    state.fronts.y[id] = y;
+    state.fronts.z[id] = z;
+    state.fronts.r[id] = r;
+
+    state.fronts.dir_x[id] = 0.0f;
+    state.fronts.dir_y[id] = 0.0f;
+    state.fronts.dir_z[id] = 1.0f;
+
+    state.fronts.object_type[id] = 0;
+    state.fronts.object_id[id] = id;
+    state.fronts.branch_id[id] = 0;
+    state.fronts.parent_sphere_id[id] = id;
+    state.fronts.active[id] = 1;
+}
+void initialize_multiple_fronts_gpu(GpuSimulationState& state, int num_fronts){
+//very test version
+    if (num_fronts <= 0){
+        return;
+    }
+
+    if (num_fronts > state.spheres.capacity || num_fronts > state.fronts.capacity){
+        throw std::runtime_error("Too many initial fronts");
+    }
+    int blocks = gpu_num_blocks(num_fronts);
+
+    initialize_multiple_fronts_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(state, num_fronts);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+    
+    CUDA_CHECK(cudaMemcpy(
+        state.spheres.count,
+        &num_fronts,
+        sizeof(int),
+        cudaMemcpyHostToDevice
+    ));
+
+    CUDA_CHECK(cudaMemcpy(
+        state.fronts.count,
+        &num_fronts,
+        sizeof(int),
+        cudaMemcpyHostToDevice
+    ));
+}
+
+
 
 //this thing is cpu callable, launches the gpu kernel
 void initialize_single_front_gpu(GpuSimulationState& state) {
