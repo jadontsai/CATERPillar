@@ -43,5 +43,5 @@ void allocate_gpu_spatial_grid(GpuSpatialGrid& grid,
 
 void free_gpu_spatial_grid(GpuSpatialGrid& grid);
 
-void build_gpu_spatial_grid(const GpuSimulationState& state, 
+void build_gpu_spatial_grid(GpuSimulationState& state, 
     GpuSpatialGrid& grid);
