@@ -84,6 +84,14 @@ void run_gpu_simulation(const GpuParameters& params) {
 
     GpuSimulationState state;
     allocate_gpu_state(state, params);
+    GpuSpatialGrid grid;
+    allocate_gpu_spatial_grid(
+        grid,
+        2.0f * params.min_radius,
+        params.voxel_edge_length,
+        params.max_spheres,
+        params.max_spheres * 16
+    );
     //so state is on the cpu stack, but it's pointing to GPU memory
 
     // gpu_smoke_test_kernel<<<1, 32>>>(state.error_code);
@@ -103,16 +111,21 @@ void run_gpu_simulation(const GpuParameters& params) {
     initialize_single_front_gpu(state);
     std::cout << "after initialize_single_front_gpu" << std::endl;
     for (int i = 0; i <10; ++i){
-    gpu_generate_candidates(state, i);
-    std::cout << "after gpu_generate_candidates" << std::endl;
+        build_gpu_spatial_grid(state, grid);
+        std::cout << "after build_gpu_spatial_grid" << i << std::endl;
 
-    run_in_box_check(state);
-    std::cout << "after run_in_box_check" << std::endl;
+        gpu_generate_candidates(state, i);
+        std::cout << "after gpu_generate_candidates" << std::endl;
 
-    select_valid_candidate_gpu(state);
-    std::cout << "after select_valid_candidate_gpu" << std::endl;
-    commit_candidates_gpu(state);
-    std::cout << "after commit_candidates_gpu" << std::endl;
+        run_in_box_check(state);
+        std::cout << "after run_in_box_check" << std::endl;
+        run_collision_check(state, grid);
+        std::cout << "after run_collision_check" << std::endl;
+
+        select_valid_candidate_gpu(state);
+        std::cout << "after select_valid_candidate_gpu" << std::endl;
+        commit_candidates_gpu(state);
+        std::cout << "after commit_candidates_gpu" << std::endl;
     }
 
 
@@ -130,6 +143,12 @@ void run_gpu_simulation(const GpuParameters& params) {
 
     std::cout << "sphere count after commit: "
             << sphere_count << std::endl;
+    free_gpu_spatial_grid(grid);   
+    std::cout << "freed spatial grid" << std::endl;
+
+    free_gpu_state(state);
+    std::cout << "freed gpu state" << std::endl;
+
 
     //launches the single front kernel with 1 block and 1 thread
 
@@ -187,5 +206,4 @@ void run_gpu_simulation(const GpuParameters& params) {
     // std::cout << "sphere 0 position (should be half voxel edge length): " << x_0 << ", " << y_0 << ", " << z_0 << std::endl;
     // std::cout << "sphere 0 radius (should be min radius): " << r_0 << std::endl;
 
-    free_gpu_state(state);
 }

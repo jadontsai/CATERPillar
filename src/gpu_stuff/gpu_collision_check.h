@@ -1,4 +1,9 @@
 #pragma once
-#include "gpu_simulation_state.h"
 
-void run_collision_check(const GpuSimulationState& state, bool* collision_result);
+#include "gpu_simulation_state.h"
+#include "gpu_spatial_grid.h"
+
+void run_collision_check(
+    GpuSimulationState& state,
+    GpuSpatialGrid& grid
+);
