@@ -79,6 +79,18 @@ void make_persistent_direction(
             out_dz = old_dz;
       }
 }
+
+__device__
+float sample_gamma_integer(unsigned int seed, int shape, float scale){
+      float sum = 0.0f;
+      for(int i = 0; i< shape; ++i){
+            float u = random_float(seed + 1234u * static_cast<unsigned int>(i));
+            u = fmaxf(u, 1e-7f);
+            sum += -logf(u);
+      }
+      return scale *sum;
+      }
+
 __global__
 void kernel_generate_candidates(GpuSimulationState state, int step) {
       //kernel that actually generates candidates
@@ -144,7 +156,10 @@ void kernel_generate_candidates(GpuSimulationState state, int step) {
       );
       //CHANGE THIS LATER WHEN I IMPLEMENT GAMMA DISTRIBUTION
       //==========================================================================
-      float radius = state.params.min_radius;
+      //float radius = state.params.min_radius;
+      int shape = static_cast<int>(roundf(state.params.alpha));
+      float radius = sample_gamma_integer(seed + 50000u, shape, state.params.beta);
+      radius = fmaxf(radius, state.params.min_radius);
       float overlap_factor = fmaxf(1.0f, state.params.overlap_factor);
       //error handling if the factor is less than 1 for whatever reason, but maybe that should be more graceful
 
