@@ -28,7 +28,57 @@ float random_float(unsigned int seed) {
       //returns a random float between 0 and 1 based on the seed
       return static_cast<float>(hash(seed) &0x00FFFFFF)/16777216.0f;;
 }
+__device__
+float safe_rsqrt(float x) {
+      return rsqrtf(fmaxf(x, 1e-12f));
+      //a bit safer behaviour than 0
+}
 
+__device__
+void normalize3(float& x, float& y, float& z) {
+      float inv_norm = safe_rsqrt(x * x + y * y + z * z);
+      x *= inv_norm;
+      y *= inv_norm;
+      z *= inv_norm;
+}
+
+__device__
+void make_persistent_direction(
+      float old_dx,
+      float old_dy,
+      float old_dz,
+      float rand_dx,
+      float rand_dy,
+      float rand_dz,
+      float persistence,
+      float& out_dx,
+      float& out_dy,
+      float& out_dz
+) {
+      normalize3(old_dx, old_dy, old_dz);
+      normalize3(rand_dx, rand_dy, rand_dz);
+
+      float randomness = 1.0f - persistence;
+      //higher persistence means straighter
+
+      out_dx = persistence * old_dx + randomness * rand_dx;
+      out_dy = persistence * old_dy + randomness * rand_dy;
+      out_dz = persistence * old_dz + randomness * rand_dz;
+
+      normalize3(out_dx, out_dy, out_dz);
+
+      // Prevent backward turns
+      float dot_prev =
+            out_dx * old_dx +
+            out_dy * old_dy +
+            out_dz * old_dz;
+
+      if (dot_prev < 0.0f) {
+            out_dx = old_dx;
+            out_dy = old_dy;
+            out_dz = old_dz;
+      }
+}
 __global__
 void kernel_generate_candidates(GpuSimulationState state, int step) {
       //kernel that actually generates candidates
@@ -65,10 +115,33 @@ void kernel_generate_candidates(GpuSimulationState state, int step) {
       //radius of vector (since unit sphere has vector x^2 + y^2 + z^2 = 1) at that z value is sqrt(1-z^2)
       float xy = sqrtf(fmaxf(0.0f, 1.0f - z * z));
       //directions
-      float dx = xy * cosf(theta);
-      float dy = xy * sinf(theta);
-      float dz = z;
 
+      //BETTER RANDOM BEHAVIOUR
+      float rand_dx = xy * cosf(theta);
+      float rand_dy = xy * sinf(theta);
+      float rand_dz = z;
+
+      // Current front direction
+      float old_dx = state.fronts.dir_x[front_id];
+      float old_dy = state.fronts.dir_y[front_id];
+      float old_dz = state.fronts.dir_z[front_id];
+      float persistence = 0.90f;
+      float dx;
+      float dy;
+      float dz;
+
+      make_persistent_direction(
+            old_dx,
+            old_dy,
+            old_dz,
+            rand_dx,
+            rand_dy,
+            rand_dz,
+            persistence,
+            dx,
+            dy,
+            dz
+      );
       //CHANGE THIS LATER WHEN I IMPLEMENT GAMMA DISTRIBUTION
       //==========================================================================
       float radius = state.params.min_radius;

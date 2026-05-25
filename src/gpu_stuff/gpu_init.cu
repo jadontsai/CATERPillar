@@ -50,10 +50,11 @@ void initialize_single_front_kernel(GpuSimulationState state) {
     state.fronts.r[0] = radius;
     //for now the same place as the sphere
 
-    state.fronts.dir_x[0] = 1.0f;
+    state.fronts.dir_x[0] = 0.0f;
     state.fronts.dir_y[0] = 0.0f;
-    state.fronts.dir_z[0] = 0.0f;
+    state.fronts.dir_z[0] = 1.0f;
     //defines initial growth direction, in this case +x
+    //nvm thye used +z, can change though
 
     state.fronts.object_type[0] = 0;
     state.fronts.object_id[0] = 0;
