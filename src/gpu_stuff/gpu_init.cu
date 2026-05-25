@@ -44,7 +44,7 @@ void normalize3(float& x, float& y, float& z) {
 }
 
 __device__
-float sample_gamma_integer(unsigned int seed, int shape, float scale){
+float sample_gamma_integer_shape(unsigned int seed, int shape, float scale){
       float sum = 0.0f;
       for(int i = 0; i< shape; ++i){
             float u = random_float(seed + 1234u * static_cast<unsigned int>(i));
