@@ -124,13 +124,15 @@ void run_gpu_simulation(const GpuParameters& params) {
 
         select_valid_candidate_gpu(state);
         std::cout << "after select_valid_candidate_gpu" << std::endl;
+        write_csv("temp.csv", state, 100000);
+        std::cout << "after write_csv_temp" << std::endl;
         commit_candidates_gpu(state);
         std::cout << "after commit_candidates_gpu" << std::endl;
     }
 
 
-    write_csv("candidates.csv", state, 100000);
-    std::cout << "after write_csv" << std::endl;
+    write_csv("final.csv", state, 100000);
+    std::cout << "after write_csv_final" << std::endl;
 
     int sphere_count = 0;
 
