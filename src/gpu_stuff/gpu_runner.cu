@@ -153,7 +153,7 @@ void run_gpu_simulation(const GpuParameters& params) {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     std::cout << "after initislize_scene" << std::endl;
-    
+
     for (int i = 0; i <1000; ++i){
         build_gpu_spatial_grid(state, grid);
         std::cout << "after build_gpu_spatial_grid" << i << std::endl;
@@ -175,7 +175,7 @@ void run_gpu_simulation(const GpuParameters& params) {
     }
 
     //"spheres" is the input if you wanna see the commited stuff
-    write_final_csv("final.csv", spheres, state);
+    write_final_csv("final.csv", state);
     std::cout << "after write_csv_final" << std::endl;
     CUDA_CHECK(cudaDeviceSynchronize());
 
