@@ -182,7 +182,7 @@ void run_gpu_simulation(const GpuParameters& params) {
     });
 
     float gen_ms = time_cuda_stage_ms([&]() {
-        gpu_generate_candidates(state, step);
+        gpu_generate_candidates(state, i);
     });
 
     float inbox_ms = time_cuda_stage_ms([&]() {
@@ -201,7 +201,7 @@ void run_gpu_simulation(const GpuParameters& params) {
         commit_candidates_gpu(state);
     });
 
-    std::cout << "step " << step
+    std::cout << "step " << i
           << " grid_ms=" << grid_ms
           << " gen_ms=" << gen_ms
           << " inbox_ms=" << inbox_ms
