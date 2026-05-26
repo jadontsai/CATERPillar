@@ -6,7 +6,7 @@
 
 
 #include "gpu_init.h"
-#include "gpu_util.h"
+#include "gpu_util.cuh"
 #include "gpu_object_types.h"
 
 #include <cuda_runtime.h>

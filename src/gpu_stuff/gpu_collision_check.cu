@@ -1,6 +1,6 @@
 #include "gpu_collision_check.h"
 #include "gpu_launch_config.h"
-#include "gpu_util.h"
+#include "gpu_util.cuh"
 
 #include <cuda_runtime.h>
 

@@ -1,7 +1,3 @@
-#pragma once
-#include "gpu_simulation_state.h"
-#include "gpu_object_types.h"
-#include "gpu_spatial_grid.h"
 
 
 float sample_standard_normal_box_muller(unsigned int seed);
