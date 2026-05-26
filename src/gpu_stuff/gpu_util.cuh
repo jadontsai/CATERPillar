@@ -9,6 +9,20 @@
 #include <cmath>
 
 inline __device__
+unsigned int hash(unsigned int x) {
+      //some psuedo random hashing function
+      x = ((x >> 16) ^ x) * 0x6767f2a;
+      x = ((x >> 16) ^ x) * 0x41d923b;
+      x = (x >> 16) ^ x;
+      return x;
+}
+
+inline __device__
+float random_float(unsigned int seed) {
+      //returns a random float between 0 and 1 based on the seed
+      return static_cast<float>(hash(seed) &0x00FFFFFF)/16777216.0f;;
+}
+inline __device__
 float sample_standard_normal_box_muller(unsigned int seed) {
       //normally distributed radii for axon 
       // pertubation (like how much each sphere changes)
@@ -30,20 +44,6 @@ float sample_normal_box_muller(
       float stddev
 ) {
       return mean + stddev * sample_standard_normal_box_muller(seed);
-}
-inline __device__
-unsigned int hash(unsigned int x) {
-      //some psuedo random hashing function
-      x = ((x >> 16) ^ x) * 0x6767f2a;
-      x = ((x >> 16) ^ x) * 0x41d923b;
-      x = (x >> 16) ^ x;
-      return x;
-}
-
-inline __device__
-float random_float(unsigned int seed) {
-      //returns a random float between 0 and 1 based on the seed
-      return static_cast<float>(hash(seed) &0x00FFFFFF)/16777216.0f;;
 }
 inline __device__
 float safe_rsqrt(float x) {
