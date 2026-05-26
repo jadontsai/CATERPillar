@@ -153,6 +153,51 @@ void initialize_multiple_fronts_kernel(GpuSimulationState state, int num_fronts)
     state.fronts.parent_sphere_id[id] = id;
     state.fronts.active[id] = 1;
 }
+//helpers
+__device__
+float sample_axon_base_radius(
+    GpuSimulationState state,
+    int object_id
+) {
+    int shape = static_cast<int>(roundf(state.params.alpha));
+    shape = max(shape, 1);
+
+    unsigned int seed = static_cast<unsigned int>(
+        state.params.seed +
+        7919ULL * static_cast<unsigned long long>(object_id)
+    );
+
+    float radius = sample_gamma_integer_shape(
+        seed + 50000u,
+        shape,
+        state.params.beta
+    );
+
+    radius = fmaxf(radius, state.params.min_radius);
+
+    return radius;
+}
+__device__
+float sample_glial_soma_radius(
+    GpuSimulationState state,
+    int soma_id
+) {
+    unsigned int seed = static_cast<unsigned int>(
+        state.params.seed +
+        104729ULL * static_cast<unsigned long long>(soma_id)
+    );
+
+    float radius = sample_normal_box_muller(
+        seed + 70000u,
+        state.params.glial_soma_radius_mean,
+        state.params.glial_soma_radius_std
+    );
+
+    radius = fmaxf(radius, state.params.min_radius);
+
+    return radius;
+}
+
 
 __global__
 void initialize_many_axon_fronts_kernel(
@@ -327,74 +372,6 @@ void initialize_glial_process_fronts_kernel(
 
 
 //end of kernels
-
-__global__
-void initialize_glial_process_fronts_kernel(
-    GpuSimulationState state,
-    int soma_start_sphere_id,
-    int front_start_id,
-    int num_somas,
-    int processes_per_soma
-) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    int total_processes = num_somas * processes_per_soma;
-
-    if (idx >= total_processes) {
-        return;
-    }
-
-    int soma_id = idx / processes_per_soma;
-    int process_id = idx % processes_per_soma;
-
-    int soma_sphere_id = soma_start_sphere_id + soma_id;
-    int front_id = front_start_id + idx;
-
-    if (front_id >= state.fronts.capacity) {
-        *state.error_code = 3;
-        return;
-    }
-
-    float sx = state.spheres.x[soma_sphere_id];
-    float sy = state.spheres.y[soma_sphere_id];
-    float sz = state.spheres.z[soma_sphere_id];
-    float sr = state.spheres.r[soma_sphere_id];
-
-    float angle =
-        2.0f * 3.14159265358979323846f *
-        static_cast<float>(process_id) /
-        static_cast<float>(processes_per_soma);
-
-    float dx = cosf(angle);
-    float dy = sinf(angle);
-    float dz = 0.25f;
-
-    normalize3(dx, dy, dz);
-
-    float process_radius = fmaxf(
-        state.params.glial_process_radius_fraction * sr,
-        state.params.min_radius
-    );
-
-    state.fronts.x[front_id] = sx + sr * dx;
-    state.fronts.y[front_id] = sy + sr * dy;
-    state.fronts.z[front_id] = sz + sr * dz;
-
-    state.fronts.r[front_id] = process_radius;
-    state.fronts.base_r[front_id] = process_radius;
-
-    state.fronts.dir_x[front_id] = dx;
-    state.fronts.dir_y[front_id] = dy;
-    state.fronts.dir_z[front_id] = dz;
-
-    state.fronts.object_type[front_id] = GPU_OBJECT_GLIAL_PROCESS;
-    state.fronts.object_id[front_id] = soma_id;
-    state.fronts.branch_id[front_id] = process_id;
-    state.fronts.parent_sphere_id[front_id] = soma_sphere_id;
-    state.fronts.active[front_id] = 1;
-}
-
-//end kernels
 
 void initialize_glial_somas_gpu(
     GpuSimulationState& state,

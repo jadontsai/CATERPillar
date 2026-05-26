@@ -17,6 +17,7 @@
 #include <fstream>
 #include <vector>
 #include <chrono>
+#include <functional>
 
 #define CUDA_CHECK(call)                                                   \
     do {                                                                   \
@@ -37,6 +38,27 @@ void gpu_smoke_test_kernel(int* error_code) {
     }
 }
 
+
+float time_cuda_stage_ms(
+    const std::function<void()>& stage
+) {//timing gpu stages
+    cudaEvent_t start;
+    cudaEvent_t stop;
+
+    CUDA_CHECK(cudaEventCreate(&start));
+    CUDA_CHECK(cudaEventCreate(&stop));
+    CUDA_CHECK(cudaEventRecord(start));
+    stage();
+    //done
+    CUDA_CHECK(cudaEventRecord(stop));
+    CUDA_CHECK(cudaEventSynchronize(stop));
+    //print
+    float elapsed_ms = 0.0f;
+    CUDA_CHECK(cudaEventElapsedTime(&elapsed_ms, start, stop));
+    CUDA_CHECK(cudaEventDestroy(start));
+    CUDA_CHECK(cudaEventDestroy(stop));
+    return elapsed_ms;
+}
 //this is designed as writing temp candidates (probably could collapse this and the 
 // other csv function if we were crunched for space); not actually used for real results
 //useful for debugging though
@@ -155,23 +177,55 @@ void run_gpu_simulation(const GpuParameters& params) {
     std::cout << "after initislize_scene" << std::endl;
 
     for (int i = 0; i <1000; ++i){
+    float grid_ms = time_cuda_stage_ms([&]() {
         build_gpu_spatial_grid(state, grid);
-        std::cout << "after build_gpu_spatial_grid" << i << std::endl;
+    });
 
-        gpu_generate_candidates(state, i);
-        std::cout << "after gpu_generate_candidates" << std::endl;
+    float gen_ms = time_cuda_stage_ms([&]() {
+        gpu_generate_candidates(state, step);
+    });
 
+    float inbox_ms = time_cuda_stage_ms([&]() {
         run_in_box_check(state);
-        std::cout << "after run_in_box_check" << std::endl;
-        run_collision_check(state, grid);
-        std::cout << "after run_collision_check" << std::endl;
+    });
 
+    float collision_ms = time_cuda_stage_ms([&]() {
+        run_collision_check(state, grid);
+    });
+
+    float select_ms = time_cuda_stage_ms([&]() {
         select_valid_candidate_gpu(state);
-        std::cout << "after select_valid_candidate_gpu" << std::endl;
-        //write_csv("candidates_step_" + std::to_string(i) + ".csv", state, 258);
-       // std::cout << "after write_csv_temp" << std::endl;
+    });
+
+    float commit_ms = time_cuda_stage_ms([&]() {
         commit_candidates_gpu(state);
-        std::cout << "after commit_candidates_gpu" << std::endl;
+    });
+
+    std::cout << "step " << step
+          << " grid_ms=" << grid_ms
+          << " gen_ms=" << gen_ms
+          << " inbox_ms=" << inbox_ms
+          << " collision_ms=" << collision_ms
+          << " select_ms=" << select_ms
+          << " commit_ms=" << commit_ms
+          << std::endl;
+    //     build_gpu_spatial_grid(state, grid);
+    //     std::cout << "after build_gpu_spatial_grid" << i << std::endl;
+
+    //     gpu_generate_candidates(state, i);
+    //     std::cout << "after gpu_generate_candidates" << std::endl;
+
+    //     run_in_box_check(state);
+    //     std::cout << "after run_in_box_check" << std::endl;
+    //     run_collision_check(state, grid);
+    //     std::cout << "after run_collision_check" << std::endl;
+
+    //     select_valid_candidate_gpu(state);
+    //     std::cout << "after select_valid_candidate_gpu" << std::endl;
+    //     //write_csv("candidates_step_" + std::to_string(i) + ".csv", state, 258);
+    //    // std::cout << "after write_csv_temp" << std::endl;
+    //     commit_candidates_gpu(state);
+    //     std::cout << "after commit_candidates_gpu" << std::endl;
     }
 
     //"spheres" is the input if you wanna see the commited stuff
