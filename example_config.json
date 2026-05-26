@@ -1,7 +1,7 @@
 {
   "GeneralParameters": {
     "OutputDirectory": "./output_2/glial_test",
-    "Filename": "glial_test",
+    "Filename": "glial_test_2",
     "VoxelEdgeLength": 50.0,
     "Repetitions": 1,
     "OverlappingFactor": 4
@@ -22,7 +22,7 @@
     "Tortuosity_Epsilon": 0.01,
     "FODF_c2": 1.0,
 
-    "BeadingAmplitude": 0.3,
+    "BeadingAmplitude": 0.2,
     "BeadingStd": 0.02,
 
     "K1": 0.35,
@@ -35,14 +35,14 @@
     "UndulationFactor": 5
   },
   "GlialParameters": {
-    "Pop1SomaICVF": 1.0,
-    "Pop1ProcessesICVF": 2.0,
+    "Pop1SomaICVF": 0.0,
+    "Pop1ProcessesICVF": 0.0,
     "Pop1SomaRadiusMean": 6.0,
     "Pop1SomaRadiusStd": 0.5,
     "Pop1MeanProcessLength": 15.0,
     "Pop1StdProcessLength": 2.0,
     "Pop1NbrPrimaryProcesses": 4,
-    "Pop1Branching": true,
+    "Pop1Branching": false,
 
     "Pop2SomaICVF": 0.0,
     "Pop2ProcessesICVF": 0.0,

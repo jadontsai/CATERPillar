@@ -149,22 +149,11 @@ void run_gpu_simulation(const GpuParameters& params) {
     );
     //so state is on the cpu stack, but it's pointing to GPU memory
 
-    // gpu_smoke_test_kernel<<<1, 32>>>(state.error_code);
-    // CUDA_CHECK(cudaGetLastError());
-    // CUDA_CHECK(cudaDeviceSynchronize());
-
-    // int host_error_code = 0;
-
-    // CUDA_CHECK(cudaMemcpy(
-    //     &host_error_code,
-    //     state.error_code,
-    //     sizeof(int),
-    //     cudaMemcpyDeviceToHost
-    // ));
-
-    // std::cout << "should be 1234 if it worked: " << host_error_code << std::endl;
-    initialize_multiple_fronts_gpu(state, 67);
-    std::cout << "after initialize_multiple_fronts_gpu" << std::endl;
+    initialize_scene_gpu(state);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+    std::cout << "after initislize_scene" << std::endl;
+    
     for (int i = 0; i <1000; ++i){
         build_gpu_spatial_grid(state, grid);
         std::cout << "after build_gpu_spatial_grid" << i << std::endl;
@@ -185,8 +174,8 @@ void run_gpu_simulation(const GpuParameters& params) {
         std::cout << "after commit_candidates_gpu" << std::endl;
     }
 
-
-    write_final_csv("final.csv", state);
+    //"spheres" is the input if you wanna see the commited stuff
+    write_final_csv("final.csv", spheres, state);
     std::cout << "after write_csv_final" << std::endl;
     CUDA_CHECK(cudaDeviceSynchronize());
 
@@ -215,6 +204,20 @@ void run_gpu_simulation(const GpuParameters& params) {
     std::cout << "freed gpu state" << std::endl;
 
 
+    // gpu_smoke_test_kernel<<<1, 32>>>(state.error_code);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
+
+    // int host_error_code = 0;
+
+    // CUDA_CHECK(cudaMemcpy(
+    //     &host_error_code,
+    //     state.error_code,
+    //     sizeof(int),
+    //     cudaMemcpyDeviceToHost
+    // ));
+
+    // std::cout << "should be 1234 if it worked: " << host_error_code << std::endl;
     //launches the single front kernel with 1 block and 1 thread
 
     //cpu variables that will be copied back from gpu
@@ -270,5 +273,4 @@ void run_gpu_simulation(const GpuParameters& params) {
     // std::cout << "front count (should be 1): " << front_count << std::endl;
     // std::cout << "sphere 0 position (should be half voxel edge length): " << x_0 << ", " << y_0 << ", " << z_0 << std::endl;
     // std::cout << "sphere 0 radius (should be min radius): " << r_0 << std::endl;
-
 }

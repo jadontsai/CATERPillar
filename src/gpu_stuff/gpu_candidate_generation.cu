@@ -1,5 +1,6 @@
 #include "gpu_candidate_generation.h"
 #include "gpu_util.h"
+#include "gpu_object_types.h"
 #include <cuda_runtime.h>
 #include <stdexcept>
 #include <string>
