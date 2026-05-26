@@ -1,5 +1,6 @@
 #include "gpu_collision_check.h"
 #include "gpu_launch_config.h"
+#include "gpu_util.h"
 
 #include <cuda_runtime.h>
 
@@ -21,48 +22,8 @@ namespace {
 // i don't really want to undo this, should have way more than 
 // enough memory with DRAC anyways
 // (if that somehow becomes an issue i'll make a helper file)
-__device__
-int clamp_int(int val, int min_val, int max_val) {
-    return max(min(val, max_val), min_val);
-}
+//okay nvm making the helper file
 
-__device__
-int flatten_index(int x, int y, int z, const GpuSpatialGrid grid) {
-    return x + grid.grid_dim_x * (y + z * grid.grid_dim_y);
-}
-
-__device__
-void cell_bounds(
-    float x,
-    float y,
-    float z,
-    float r,
-    const GpuSpatialGrid grid,
-    int& min_x,
-    int& max_x,
-    int& min_y,
-    int& max_y,
-    int& min_z,
-    int& max_z
-) {
-    min_x = static_cast<int>(floorf((x - r) / grid.cell_size));
-    max_x = static_cast<int>(floorf((x + r) / grid.cell_size));
-
-    min_y = static_cast<int>(floorf((y - r) / grid.cell_size));
-    max_y = static_cast<int>(floorf((y + r) / grid.cell_size));
-
-    min_z = static_cast<int>(floorf((z - r) / grid.cell_size));
-    max_z = static_cast<int>(floorf((z + r) / grid.cell_size));
-
-    min_x = clamp_int(min_x, 0, grid.grid_dim_x - 1);
-    max_x = clamp_int(max_x, 0, grid.grid_dim_x - 1);
-
-    min_y = clamp_int(min_y, 0, grid.grid_dim_y - 1);
-    max_y = clamp_int(max_y, 0, grid.grid_dim_y - 1);
-
-    min_z = clamp_int(min_z, 0, grid.grid_dim_z - 1);
-    max_z = clamp_int(max_z, 0, grid.grid_dim_z - 1);
-}
 __device__
 bool is_recent_ancestor(
     //since spheres can overlap with more than just 

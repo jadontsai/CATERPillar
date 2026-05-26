@@ -1,5 +1,7 @@
 #include "gpu_spatial_grid.h"
 #include "gpu_launch_config.h"
+#include "gpu_util.h"
+
 #include <cuda_runtime.h>
 #include <thrust/device_ptr.h>
 #include <thrust/sort.h>//for thrust::sort_by_key
@@ -28,44 +30,6 @@
     } while (0)
 
 namespace{//makes things private
-
-__device__
-int clamp_int(int val, int min_val, int max_val) {
-    return max(min(val, max_val), min_val);
-}
-
-__device__
-int flatten_index(int x, int y, int z, const GpuSpatialGrid grid) {
-    return x + grid.grid_dim_x * (y + z * grid.grid_dim_y);
-}//converts 3d cell coordinates to 1d index for sorting
-
-__device__
-void cell_bounds(
-    float x, float y, float z, float r,
-    const GpuSpatialGrid grid,
-    int& min_x, int& max_x,
-    int& min_y, int& max_y,
-    int& min_z, int& max_z
-)
-{//a sphere occupies this range at maximum (overestimates a bit but it's close ish)
-    min_x = static_cast<int>(floorf((x-r) / grid.cell_size));
-    max_x = static_cast<int>(floorf((x+r) / grid.cell_size));
-    min_y = static_cast<int>(floorf((y-r) / grid.cell_size));
-    max_y = static_cast<int>(floorf((y+r) / grid.cell_size));
-    min_z = static_cast<int>(floorf((z-r) / grid.cell_size));
-    max_z = static_cast<int>(floorf((z+r) / grid.cell_size));
-
-    //clamping to grid bounds near voxel boundaries
-    min_x = clamp_int(min_x, 0, grid.grid_dim_x - 1);
-    max_x = clamp_int(max_x, 0, grid.grid_dim_x - 1);
-    min_y = clamp_int(min_y, 0, grid.grid_dim_y - 1);
-    max_y = clamp_int(max_y, 0, grid.grid_dim_y - 1);
-    min_z = clamp_int(min_z, 0, grid.grid_dim_z - 1);
-    max_z = clamp_int(max_z, 0, grid.grid_dim_z - 1);
-}
-
-
-
 __global__
 void num_sphere_grid_entries_kernel(
     GpuSimulationState state,

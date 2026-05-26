@@ -16,6 +16,7 @@
 /gitingore
 build/
 build-*/
+vcpkg/
 build-hpc/
 build-cuda/
 cmake-build-*/
