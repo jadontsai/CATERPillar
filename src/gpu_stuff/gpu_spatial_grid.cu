@@ -15,7 +15,9 @@
 //this kernel just sorts the entries, 
 //then another kernel (gpu_collision_check.cu) can do 
 // collision checks by only checking spheres in close enough cells
-
+// this is then used by gpu_collision_checker to actually check
+//this keeps the complexity of collision checking within O(n) since it's akin
+// to dictionary accesses
 #define CUDA_CHECK(call)                                                   \
     do {                                                                   \
         cudaError_t err = call;                                            \

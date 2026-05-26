@@ -1,5 +1,5 @@
 #pragma once //only include header file once
-
+//
 struct GpuParameters {
     //different from original, just barebones for now
     //keep things as floats for now, no need for double
@@ -10,7 +10,7 @@ struct GpuParameters {
     float beta = 0.25f;
     float overlap_factor = 4.0f;
 
-    int max_spheres = 10000000;//small for now
+    int max_spheres = 10000000;//small for now (not small anymore)
     int max_growth_fronts = 10000;
     int candidates_per_front = 256;
     int max_steps = 10000;

@@ -10,14 +10,13 @@
 #include "gpu_launch_config.h"
 #include "gpu_spatial_grid.h"
 
-
 #include <cuda_runtime.h>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <fstream>
 #include <vector>
-//for writing into a csv
+#include <chrono>
 
 #define CUDA_CHECK(call)                                                   \
     do {                                                                   \
@@ -29,6 +28,7 @@
     } while (0)
 
 __global__//launched from cpu, runs on gpu
+//this is just to see if we can actually do anything with the GPU, not used in actual axon stuff
 void gpu_smoke_test_kernel(int* error_code) {
     //threadIdx.x is the thread index within the block, blockIdx.x is the block index within the grid
     if (threadIdx.x == 0 && blockIdx.x == 0) {
@@ -37,9 +37,12 @@ void gpu_smoke_test_kernel(int* error_code) {
     }
 }
 
+//this is designed as writing temp candidates (probably could collapse this and the 
+// other csv function if we were crunched for space); not actually used for real results
+//useful for debugging though
 void write_csv(const std::string& filename,
 GpuSimulationState& state,
-int num_to_write){
+int num_to_write){//num_to_write_is some limit if you needed it, make it arbitrarily large if you want
     int total_candidates = state.candidates.total_candidates;
 
     num_to_write = std::min(num_to_write, total_candidates);
@@ -133,7 +136,7 @@ void write_final_csv(
 }
 void run_gpu_simulation(const GpuParameters& params) {
     std::cout << "doing gpu stuff..." << std::endl;
-
+    auto start_time = std::chrono::high_resolution_clock::now();
     GpuSimulationState state;
     allocate_gpu_state(state, params);
     GpuSpatialGrid grid;
@@ -185,6 +188,14 @@ void run_gpu_simulation(const GpuParameters& params) {
 
     write_final_csv("final.csv", state);
     std::cout << "after write_csv_final" << std::endl;
+    CUDA_CHECK(cudaDeviceSynchronize());
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+
+    double elapsed_ms =
+        std::chrono::duration<double, std::milli>(end_time - start_time).count();
+
+    std::cout << "GPU simulation time (ms): " << elapsed_ms << std::endl;
 
     int sphere_count = 0;
 

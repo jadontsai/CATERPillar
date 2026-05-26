@@ -1,3 +1,10 @@
+//this file initialiezs either one axon (single front) or a lot of axons
+// (multiple fronts); placement is done here, as well as initial radius size
+// Radius size follows a rough gamma distribution (can only take integers for now)
+// Gamma distribution is a sum of two exponentials (Hence why only integer inputs)
+
+
+
 #include "gpu_init.h"
 
 #include <cuda_runtime.h>

@@ -8,7 +8,7 @@
   },
   "AxonParameters": {
     "AxonsICVF": 50.0,
-    "AxonsWithMyelinICVF": 20.0,
+    "AxonsWithMyelinICVF": 0.0,
     "BloodVesselsICVF": 0.0,
 
     "NumberOfPopulations": 1,
