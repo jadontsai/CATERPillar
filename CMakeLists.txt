@@ -53,7 +53,7 @@ if(CATERPILLAR_ENABLE_CUDA)
         src/gpu_stuff/gpu_commit.cu
         src/gpu_stuff/gpu_spatial_grid.cu
         src/gpu_stuff/gpu_candidate_selection.cu
-        src/gpu_stuff/gpu_util.cu
+        #src/gpu_stuff/gpu_util.cu
     )#9 files
 
     target_include_directories(caterpillar_gpu PUBLIC
