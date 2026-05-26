@@ -9,6 +9,8 @@ struct GpuSphereTable {
     float* y = nullptr;
     float* z = nullptr;
     float* r = nullptr;
+    float* base_r = nullptr; //for more realistic growth
+
 
 
     int* object_type = nullptr;//some number for some cell type, 0 for glial, etc etc
@@ -26,6 +28,8 @@ struct GpuGrowthFrontTable {
     float* y = nullptr;
     float* z = nullptr;
     float* r = nullptr;
+    float* base_r = nullptr;
+
 
     float* dir_x = nullptr;
     float* dir_y = nullptr;

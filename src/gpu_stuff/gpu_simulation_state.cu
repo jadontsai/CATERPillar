@@ -23,6 +23,7 @@ static void allocate_spheres(GpuSphereTable& spheres, int capacity) {
     CUDA_CHECK(cudaMalloc(&spheres.y, capacity * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&spheres.z, capacity * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&spheres.r, capacity * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&spheres.base_r, capacity * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&spheres.object_type, capacity * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&spheres.object_id, capacity * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&spheres.branch_id, capacity * sizeof(int)));
@@ -42,6 +43,7 @@ static void allocate_fronts(GpuGrowthFrontTable& fronts, int capacity) {
     CUDA_CHECK(cudaMalloc(&fronts.y, capacity * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&fronts.z, capacity * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&fronts.r, capacity * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&fronts.base_r, capacity * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&fronts.dir_x, capacity * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&fronts.dir_y, capacity * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&fronts.dir_z, capacity * sizeof(float)));
@@ -116,6 +118,8 @@ void free_gpu_state(GpuSimulationState& state) {
     state.spheres.z=nullptr;
     cudaFree(state.spheres.r);
     state.spheres.r=nullptr;
+    cudaFree(state.spheres.base_r);
+    state.spheres.base_r = nullptr;
     cudaFree(state.spheres.object_type);
     state.spheres.object_type=nullptr;
     cudaFree(state.spheres.object_id);
@@ -134,6 +138,8 @@ void free_gpu_state(GpuSimulationState& state) {
     state.fronts.z=nullptr;
     cudaFree(state.fronts.r);
     state.fronts.r=nullptr;
+    cudaFree(state.fronts.base_r);
+    state.fronts.base_r = nullptr;
     cudaFree(state.fronts.dir_x);
     state.fronts.dir_x=nullptr;
     cudaFree(state.fronts.dir_y);

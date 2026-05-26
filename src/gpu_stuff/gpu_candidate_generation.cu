@@ -189,7 +189,8 @@ void kernel_generate_candidates(GpuSimulationState state, int step) {
 
       // radius = fmaxf(radius, state.params.min_radius);
 
-      float base_radius = 1.0f;  //temporary test value to clamp radius a bit better
+      float base_radius = state.fronts.base_r[front_id];
+      //some gamma distributed value
       float radius = sample_normal_box_muller(
       seed + 50000u,
       base_radius,

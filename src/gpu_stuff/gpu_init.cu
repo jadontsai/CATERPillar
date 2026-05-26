@@ -62,7 +62,31 @@ float sample_gamma_integer_shape(unsigned int seed, int shape, float scale){
       }
       return scale *sum;
       }
-    }
+
+__device__
+float sample_standard_normal_box_muller(unsigned int seed) {
+      //normally distributed radii for axon 
+      // pertubation (like how much each sphere changes)
+      float u1 = random_float(seed + 1u);
+      float u2 = random_float(seed + 2u);
+
+      u1 = fmaxf(u1, 1e-7f);
+
+      float mag = sqrtf(-2.0f * logf(u1));
+      float angle = 2.0f * 3.141592f * u2;
+
+      return mag * cosf(angle);
+}
+
+__device__
+float sample_normal_box_muller(
+      unsigned int seed,
+      float mean,
+      float stddev
+) {
+      return mean + stddev * sample_standard_normal_box_muller(seed);
+}
+    }//namespace
 __global__
 //function makes just one front (pretty much a "smokier" smoke test)
 void initialize_single_front_kernel(GpuSimulationState state) {
@@ -148,13 +172,34 @@ void initialize_multiple_fronts_kernel(GpuSimulationState state, int num_fronts)
     float y = center + spacing * static_cast<float>(iy - grid_width / 2);
     float z = center;
 
-    float r = state.params.min_radius;
+    //float r = state.params.min_radius;
+    int shape = static_cast<int>(roundf(state.params.alpha));
+    shape = max(shape, 1);//shape of the gamma distribution...
+
+    unsigned int seed =
+        static_cast<unsigned int>(
+            state.params.seed +
+            5678ULL * static_cast<unsigned long long>(id)
+        );//some random value
+
+    float base_radius = sample_gamma_integer_shape(
+        seed + 50000u,
+        shape,
+        state.params.beta
+    );
+
+    base_radius = fmaxf(base_radius, state.params.min_radius);
+
+    float r = base_radius;
+
+
 
     //Initial committed sphere for this front
     state.spheres.x[id] = x;
     state.spheres.y[id] = y;
     state.spheres.z[id] = z;
     state.spheres.r[id] = r;
+    state.spheres.base_r[id] = base_radius;
 
     state.spheres.object_type[id] = 0;
     state.spheres.object_id[id] = id;
@@ -165,6 +210,7 @@ void initialize_multiple_fronts_kernel(GpuSimulationState state, int num_fronts)
     state.fronts.y[id] = y;
     state.fronts.z[id] = z;
     state.fronts.r[id] = r;
+    state.fronts.base_r[id] = base_radius;
 
     state.fronts.dir_x[id] = 0.0f;
     state.fronts.dir_y[id] = 0.0f;

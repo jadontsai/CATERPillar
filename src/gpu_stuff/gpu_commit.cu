@@ -49,10 +49,12 @@ void commit_candidates_kernel(GpuSimulationState state) {
     }
 
     int parent_sphere_id = state.candidates.parent_id[selected_candidate_id];
+    float base_radius = state.fronts.base_r[front_id];
     state.spheres.x[new_sphere_index] = state.candidates.x[selected_candidate_id];
     state.spheres.y[new_sphere_index] = state.candidates.y[selected_candidate_id];
     state.spheres.z[new_sphere_index] = state.candidates.z[selected_candidate_id];
     state.spheres.r[new_sphere_index] = state.candidates.r[selected_candidate_id];
+    state.spheres.base_r[new_sphere_index] = base_radius;
     state.spheres.object_type[new_sphere_index] = state.fronts.object_type[front_id]; //set as needed
     state.spheres.object_id[new_sphere_index] = state.fronts.object_id[front_id];  
     state.spheres.branch_id[new_sphere_index] = state.fronts.branch_id[front_id];
@@ -62,6 +64,7 @@ void commit_candidates_kernel(GpuSimulationState state) {
     state.fronts.y[front_id] = state.candidates.y[selected_candidate_id];
     state.fronts.z[front_id] = state.candidates.z[selected_candidate_id];
     state.fronts.r[front_id] = state.candidates.r[selected_candidate_id];
+    state.fronts.base_r[front_id] = base_radius;
     state.fronts.dir_x[front_id] = state.candidates.dir_x[selected_candidate_id];
     state.fronts.dir_y[front_id] = state.candidates.dir_y[selected_candidate_id];
     state.fronts.dir_z[front_id] = state.candidates.dir_z[selected_candidate_id];
