@@ -116,6 +116,8 @@ void allocate_gpu_spatial_grid(
         throw std::runtime_error("max entries too small");
     }
     CUDA_CHECK(cudaMalloc(&grid.cell_counts, grid.num_cells * sizeof(int)));
+     std::cout << "for debugggggggging" << std::endl;
+
     CUDA_CHECK(cudaMalloc(&grid.cell_sphere_ids, bucket_entries * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&grid.num_entries, sizeof(int)));
     reset_gpu_spatial_grid(grid);
