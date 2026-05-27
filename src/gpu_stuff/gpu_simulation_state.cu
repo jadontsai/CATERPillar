@@ -4,6 +4,8 @@
 
 #include <stdexcept>
 #include <string>
+#include <iostream>
+
 
 //helper function to do malloc (returns errors better)
 #define CUDA_CHECK(call)                                                   \
@@ -52,7 +54,7 @@ static void allocate_spheres(GpuSphereTable& spheres, int capacity) {
 
     //memset initializes stuff, in this case the count is zero at the start
     CUDA_CHECK(cudaMemset(spheres.count, 0, sizeof(int)));
-        std::cout << "132" << std::endl;
+        std::cout << "132gi" << std::endl;
 
 }
 
