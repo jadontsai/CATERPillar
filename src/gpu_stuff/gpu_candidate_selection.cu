@@ -73,9 +73,9 @@ void select_valid_candidate_kernel(GpuSimulationState state){
 void select_valid_candidate_gpu(GpuSimulationState &state){
     int clear_blocks = gpu_num_blocks(state.candidates.total_candidates);
 
-    clear_selected_candidates_kernel<<<clear_blocks, GPU_THREADS_PER_BLOCK>>>(state);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // clear_selected_candidates_kernel<<<clear_blocks, GPU_THREADS_PER_BLOCK>>>(state);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     int front_count = 0;
     CUDA_CHECK(cudaMemcpy(

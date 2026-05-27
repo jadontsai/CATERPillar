@@ -162,28 +162,28 @@ void run_collision_check(
     CUDA_CHECK(cudaDeviceSynchronize());
 }
 
-// void run_selected_candidate_conflict_check(
-//     GpuSimulationState& state
-// ) {
-//     int front_count = 0;
+void run_selected_candidate_conflict_check(
+    GpuSimulationState& state
+) {
+    int front_count = 0;
 
-//     CUDA_CHECK(cudaMemcpy(
-//         &front_count,
-//         state.fronts.count,
-//         sizeof(int),
-//         cudaMemcpyDeviceToHost
-//     ));
+    CUDA_CHECK(cudaMemcpy(
+        &front_count,
+        state.fronts.count,
+        sizeof(int),
+        cudaMemcpyDeviceToHost
+    ));
 
-//     if (front_count <= 0) {
-//         return;
-//     }
+    if (front_count <= 0) {
+        return;
+    }
 
-//     int blocks = gpu_num_blocks(front_count);
+    int blocks = gpu_num_blocks(front_count);
 
-//     selected_candidate_conflict_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(
-//         state
-//     );
+    selected_candidate_conflict_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(
+        state
+    );
 
-//     CUDA_CHECK(cudaGetLastError());
-//     CUDA_CHECK(cudaDeviceSynchronize());
-// }
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+}
