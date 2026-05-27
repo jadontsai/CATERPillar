@@ -203,11 +203,11 @@ void run_gpu_simulation(const GpuParameters& params) {
     });
 
     std::cout << "step " << i
-          << " grid_ms=" << grid_ms
           << " gen_ms=" << gen_ms
           << " inbox_ms=" << inbox_ms
           << " collision_ms=" << collision_ms
           << " select_ms=" << select_ms
+          << " selected_conflict_ms=" << selected_conflict_ms
           << " commit_ms=" << commit_ms
           << std::endl;
     //     build_gpu_spatial_grid(state, grid);
