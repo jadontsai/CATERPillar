@@ -20,14 +20,14 @@ struct GpuParameters {
     //TEMP FOR DEBUGGING
     int num_axons = 64;
 
-    int num_glial_somas = 0;
+    int num_glial_somas = 20;
     float glial_soma_radius_mean = 6.0f;
     float glial_soma_radius_std = 0.5f;
     int glial_primary_processes = 4;
     float glial_process_radius_fraction = 0.25f;
     float glial_process_persistence = 0.70f;
 
-    int num_blood_vessels = 0;
+    int num_blood_vessels = 20;
     float blood_vessel_radius = 2.0f;
     float blood_vessel_persistence = 0.95f;
 };
