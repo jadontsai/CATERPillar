@@ -18,8 +18,8 @@ struct GpuSphereTable {
     int* branch_id = nullptr;//which branch (only for glial cells)
     int* parent_sphere_id = nullptr;//for reconstruction
 
-    int count = 0;//number of spheres accepted
-    int capacity = 0;//max spheres
+    int* count = nullptr;//number of spheres accepted
+    int* capacity = nullptr;//max spheres
 };
 
 struct GpuGrowthFrontTable {
@@ -42,8 +42,8 @@ struct GpuGrowthFrontTable {
 
     //set to zero
     int* active = nullptr;//stopped or not
-    int count = 0;
-    int capacity = 0;
+    int* count = nullptr;
+    int* capacity = nullptr;
 };
 
 struct GpuCandidateTable {
