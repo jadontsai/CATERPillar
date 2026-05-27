@@ -93,25 +93,25 @@ void num_sphere_grid_entries_kernel(
 
 }//namespace ends
 
-void allocate_gpu_spatial_grid(
-    GpuSpatialGrid& grid,
+void allocate_gpu_spatial_grid(GpuSpatialGrid& grid, 
+    float voxel_edge_length, 
     float cell_size,
-    float voxel_edge_length,
     int max_spheres,
     int max_entries
-) {
+){
     grid.cell_size = cell_size;
-    grid.grid_dim_x = static_cast<int>(ceilf(voxel_edge_length / cell_size));
-    grid.grid_dim_y = grid.grid_dim_x;
+    grid.grid_dim_x = static_cast<int>(ceilf(voxel_edge_length / cell_size)); //    float voxel_edge_length = 50.0f;    float min_radius = 0.15f;
+    //167
+
     grid.grid_dim_z = grid.grid_dim_x;
-    grid.num_cells = grid.grid_dim_x * grid.grid_dim_y * grid.grid_dim_z;
+    grid.num_cells = grid.grid_dim_x * grid.grid_dim_y * grid.grid_dim_z; //167^3
     grid.max_spheres = max_spheres;
     grid.max_entries = max_entries;
 
     //tune later (Maybe add to params?)
     grid.max_spheres_per_cell = 256;
 
-    const int bucket_entries = grid.num_cells * grid.max_spheres_per_cell;
+    const int bucket_entries = grid.num_cells * grid.max_spheres_per_cell; //1,185,185,185, so we need max_entries to be 1200000000
     if (bucket_entries > max_entries) {
         throw std::runtime_error("max entries too small");
     }

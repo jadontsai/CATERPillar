@@ -179,10 +179,10 @@ void run_gpu_simulation(const GpuParameters& params) {
 // );
     allocate_gpu_spatial_grid(
         grid,
-        2.0f * params.min_radius,
         params.voxel_edge_length,
+        2.0f * params.min_radius,
         params.max_spheres,
-        params.max_spheres * 256
+        1200000000.0f
     );
     std::cout << "after grid fcn creation" << std::endl;
     CUDA_CHECK(cudaGetLastError());
