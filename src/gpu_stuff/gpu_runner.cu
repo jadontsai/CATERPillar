@@ -193,9 +193,9 @@ void run_gpu_simulation(const GpuParameters& params) {
     float select_ms = time_cuda_stage_ms([&]() {
         select_valid_candidate_gpu(state);
     });
-    float selected_conflict_ms = time_cuda_stage_ms([&]() {
-        run_selected_candidate_conflict_check(state);
-    });
+    //float selected_conflict_ms = time_cuda_stage_ms([&]() {
+      //  run_selected_candidate_conflict_check(state);
+    //});
 
 
     float commit_ms = time_cuda_stage_ms([&]() {
