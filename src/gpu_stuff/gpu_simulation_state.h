@@ -19,7 +19,7 @@ struct GpuSphereTable {
     int* parent_sphere_id = nullptr;//for reconstruction
 
     int* count = nullptr;//number of spheres accepted
-    int* capacity = nullptr;//max spheres
+    int capacity = 0;//max spheres
 };
 
 struct GpuGrowthFrontTable {
@@ -40,10 +40,9 @@ struct GpuGrowthFrontTable {
     int* branch_id = nullptr;
     int* parent_sphere_id = nullptr;
 
-    //set to zero
     int* active = nullptr;//stopped or not
     int* count = nullptr;
-    int* capacity = nullptr;
+    int capacity = 0;
 };
 
 struct GpuCandidateTable {
@@ -62,8 +61,8 @@ struct GpuCandidateTable {
     int* valid = nullptr;
     int* selected = nullptr;//self explanatory
     int* selected_by_front = nullptr;
-    int* candidates_per_front = nullptr;
-    int* total_candidates = nullptr;
+    int candidates_per_front = 0;
+    int total_candidates = 0;
 };
 
 struct GpuSimulationState {
