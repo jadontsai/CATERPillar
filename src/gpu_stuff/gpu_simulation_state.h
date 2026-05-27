@@ -60,7 +60,7 @@ struct GpuCandidateTable {
     int* parent_id = nullptr; //for collision detection (it's allowed to overlap with it's parent)
     int* valid = nullptr;
     int* selected = nullptr;//self explanatory
-
+    int* selected_by_front = nullptr;
     int candidates_per_front = 0;
     int total_candidates = 0;
 };

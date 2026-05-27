@@ -175,11 +175,8 @@ void run_gpu_simulation(const GpuParameters& params) {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     std::cout << "after initislize_scene" << std::endl;
-
+    build_gpu_spatial_grid(state, grid);
     for (int i = 0; i <1000; ++i){
-    float grid_ms = time_cuda_stage_ms([&]() {
-        build_gpu_spatial_grid(state, grid);
-    });
 
     float gen_ms = time_cuda_stage_ms([&]() {
         gpu_generate_candidates(state, i);
@@ -196,9 +193,13 @@ void run_gpu_simulation(const GpuParameters& params) {
     float select_ms = time_cuda_stage_ms([&]() {
         select_valid_candidate_gpu(state);
     });
+    float selected_conflict_ms = time_cuda_stage_ms([&]() {
+        run_selected_candidate_conflict_check(state);
+    });
+
 
     float commit_ms = time_cuda_stage_ms([&]() {
-        commit_candidates_gpu(state);
+        commit_candidates_and_update_grid_gpu(state, grid);
     });
 
     std::cout << "step " << i

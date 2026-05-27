@@ -23,28 +23,22 @@ void commit_candidates_kernel(GpuSimulationState state) {
         //if the front does not exist or is inactive, skip it
         return;
     }
-    int candidates_per_front = state.candidates.candidates_per_front;
-    int start = front_id * candidates_per_front;
-    int end = start + candidates_per_front;
-      
-    int selected_candidate_id = -1;
+    int selected_candidate_id = state.candidates.selected_by_front[front_id];
 
-    for (int candidate_id = start; candidate_id < end; ++candidate_id) {
-        if (state.candidates.selected[candidate_id] != 0) {
-            selected_candidate_id = candidate_id;
-            break;
-        }
+    if (selected_candidate_id < 0) {
+        return;
     }
-    
-    if (selected_candidate_id == -1) {
-        //no valid candidate found for this front, skip it
+
+    if (state.candidates.selected[selected_candidate_id] == 0 ||
+        state.candidates.valid[selected_candidate_id] == 0) {
         return;
     }
 
     int new_sphere_index = atomicAdd(state.spheres.count, 1);
+
     if (new_sphere_index >= state.params.max_spheres) {
-        atomicSub(state.spheres.count, 1);//undo the addition
-        *state.error_code = 1; //overflow
+        atomicSub(state.spheres.count, 1);
+        *state.error_code = 1; // sphere table overflow
         return;
     }
 
@@ -90,4 +84,35 @@ void commit_candidates_gpu(GpuSimulationState& state) {
     commit_candidates_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(state);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
+}
+
+void commit_candidates_and_update_grid_gpu(
+    GpuSimulationState& state,
+    GpuSpatialGrid& grid
+) {
+    int old_sphere_count = 0;
+    int new_sphere_count = 0;
+
+    CUDA_CHECK(cudaMemcpy(
+        &old_sphere_count,
+        state.spheres.count,
+        sizeof(int),
+        cudaMemcpyDeviceToHost
+    ));
+
+    commit_candidates_gpu(state);
+
+    CUDA_CHECK(cudaMemcpy(
+        &new_sphere_count,
+        state.spheres.count,
+        sizeof(int),
+        cudaMemcpyDeviceToHost
+    ));
+
+    insert_spheres_into_gpu_spatial_grid(
+        state,
+        grid,
+        old_sphere_count,
+        new_sphere_count
+    );
 }

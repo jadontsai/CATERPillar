@@ -18,12 +18,6 @@
     } while (0)
 
 namespace {
-//copy pasted a lot of the helper functions, they both live in namespaces and 
-// i don't really want to undo this, should have way more than 
-// enough memory with DRAC anyways
-// (if that somehow becomes an issue i'll make a helper file)
-//okay nvm making the helper file
-
 __device__
 bool is_recent_ancestor(
     //since spheres can overlap with more than just 
@@ -53,6 +47,21 @@ bool is_recent_ancestor(
     }
 
     return false;
+}
+__device__ bool overlap(float ax, float ay, float az, float ar,
+float bx, float by, float bz, float br){
+    float min_dist = ar+br;
+    float dx = ax - bx;
+    if (fabsf(dx) > min_dist) return false;
+
+    float dy = ay - by;
+    if (fabsf(dy) > min_dist)return false;
+
+    float dz = az - bz;
+    if (fabsf(dz) > min_dist) return false;
+    float dist2 = dx * dx + dy * dy + dz * dz;
+    return dist2 < min_dist * min_dist;
+}
 }
 __global__
 void spatial_grid_collision_check_kernel(
@@ -109,12 +118,20 @@ void spatial_grid_collision_check_kernel(
                 if (flat_cell_idx < 0 || flat_cell_idx >= grid.num_cells) {
                     continue;
                 }
-
-                int start = grid.cell_start[flat_cell_idx];
-                int end = grid.cell_end[flat_cell_idx];
-
-                if (start < 0 || end < 0) {
-                    continue;
+                int count = grid.cell_count[flat_cell_idx];
+                count = min(count, grid.max_spheres_per_cell);
+                for (int i =0; i<count;++i){
+                    int sphere_idx = grid.cell_sphere_ids[flat_cell_idx
+                    *grid.max_spheres_per_cell +i];
+                    if (sphere_idx <0) continue;
+                    if (is_recent_ancestor(
+                        sphere_idx,
+                        parent_id,
+                        state,
+                        skip_depth
+                    )) {
+                        continue;
+                    }
                 }
 
                 for (int entry_idx = start; entry_idx < end; ++entry_idx) {
@@ -133,27 +150,7 @@ void spatial_grid_collision_check_kernel(
                     float sz = state.spheres.z[sphere_idx];
                     float sr = state.spheres.r[sphere_idx];
                     //if touching logic:
-                    float min_dist = cr + sr;
-
-                    float dx = cx - sx;
-                    if (fabsf(dx) > min_dist) {
-                        continue;
-                    }
-
-                    float dy = cy - sy;
-                    if (fabsf(dy) > min_dist) {
-                        continue;
-                    }
-
-                    float dz = cz - sz;
-                    if (fabsf(dz) > min_dist) {
-                        continue;
-                    }
-
-                    float dist2 = dx * dx + dy * dy + dz * dz;
-                    float min_dist2 = min_dist * min_dist;
-
-                    if (dist2 < min_dist2) {
+                    if (spheres_overlap(cx,cy,cz,cr,sx,sy,sz,sr)){
                         state.candidates.valid[candidate_idx] = 0;
                         return;
                     }
@@ -161,8 +158,6 @@ void spatial_grid_collision_check_kernel(
             }
         }
     }
-}
-
 } // namespace
 
 void run_collision_check(
@@ -174,6 +169,45 @@ void run_collision_check(
     spatial_grid_collision_check_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(
         state,
         grid
+    );
+
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+}void run_collision_check(
+    GpuSimulationState& state,
+    GpuSpatialGrid& grid
+) {
+    int blocks = gpu_num_blocks(state.candidates.total_candidates);
+
+    spatial_grid_collision_check_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(
+        state,
+        grid
+    );
+
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+}
+
+void run_selected_candidate_conflict_check(
+    GpuSimulationState& state
+) {
+    int front_count = 0;
+
+    CUDA_CHECK(cudaMemcpy(
+        &front_count,
+        state.fronts.count,
+        sizeof(int),
+        cudaMemcpyDeviceToHost
+    ));
+
+    if (front_count <= 0) {
+        return;
+    }
+
+    int blocks = gpu_num_blocks(front_count);
+
+    selected_candidate_conflict_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(
+        state
     );
 
     CUDA_CHECK(cudaGetLastError());

@@ -16,22 +16,19 @@ struct GpuSpatialGrid{
     //more than max spheres because one sphere can be in more than
     //one cell
     int max_entries = 0;
-    //how many cells a sphere touches
-    int* sphere_touching_num = nullptr;
-    //for indexing
-    int* sphere_touching_num_offset = nullptr;
-    int* grid_cell_id = nullptr;//which cell
-    int* grid_sphere_id = nullptr;
 
-    //two pointers to find range of entries for the 
-    // cell; if start is -1 then no spheres in cell
-    // apparently this is the most efficient way to do this
-    int* cell_start = nullptr;
-    int* cell_end = nullptr;
+    // Fixed bucket capacity per cell.
+    int max_spheres_per_cell = 0;
 
-    //GPU side variable to store number of valid entries in build (so it doesn't 
-    // cross max entries
+    // cell_counts[cell] = number of sphere ids currently stored in that cell.
+    int* cell_counts = nullptr;
+
+    // cell_sphere_ids[cell * max_spheres_per_cell + slot] = sphere id.
+    int* cell_sphere_ids = nullptr;
+
+    // Total number of cell/sphere references inserted.
     int* num_entries = nullptr;
+
 };
 
 void allocate_gpu_spatial_grid(GpuSpatialGrid& grid, 
@@ -42,6 +39,14 @@ void allocate_gpu_spatial_grid(GpuSpatialGrid& grid,
 );
 
 void free_gpu_spatial_grid(GpuSpatialGrid& grid);
+void reset_gpu_spatial_grid(GpuSpatialGrid& grid);
+
+void insert_spheres_into_gpu_spatial_grid(
+    GpuSimulationState& state,
+    GpuSpatialGrid& grid,
+    int begin_sphere,
+    int end_sphere
+);
 
 void build_gpu_spatial_grid(GpuSimulationState& state, 
     GpuSpatialGrid& grid);

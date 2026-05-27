@@ -7,3 +7,7 @@ void run_collision_check(
     GpuSimulationState& state,
     GpuSpatialGrid& grid
 );
+
+void run_selected_candidate_conflict_check(//for candidate-candidate deconflict
+    GpuSimulationState& state
+);

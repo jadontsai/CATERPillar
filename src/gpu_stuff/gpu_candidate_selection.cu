@@ -27,10 +27,21 @@ void clear_selected_candidates_kernel(GpuSimulationState state) {
     //clears selected ID
     state.candidates.selected[candidate_id] = 0;
 }
+__global__ void clear_selected_by_front_kernel(
+    GpuSimulationState state
+) {
+    int front_id = blockIdx.x * blockDim.x + threadIdx.x;
+    int front_count = *state.fronts.count;
 
+    if (front_id >= front_count) {
+        return;
+    }
+
+    state.candidates.selected_by_front[front_id] = -1;
+}
 __global__
 void select_valid_candidate_kernel(GpuSimulationState state){
-        int front_id = blockIdx.x * blockDim.x + threadIdx.x;
+    int front_id = blockIdx.x * blockDim.x + threadIdx.x;
 
     int front_count = *state.fronts.count;
 
@@ -50,6 +61,8 @@ void select_valid_candidate_kernel(GpuSimulationState state){
         if (state.candidates.valid[candidate_id] != 0) {
             //just make the first one valid, may change behaviour later
             state.candidates.selected[candidate_id] = 1;
+            state.candidates.selected_by_front[front_id] = candidate_id;
+
             return;
         }
     }
@@ -77,7 +90,11 @@ void select_valid_candidate_gpu(GpuSimulationState &state){
     }
 
     int select_blocks = gpu_num_blocks(front_count);
-
+    clear_selected_by_front_kernel<<<front_blocks, GPU_THREADS_PER_BLOCK>>>(
+        state
+    );
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
     select_valid_candidate_kernel<<<select_blocks, GPU_THREADS_PER_BLOCK>>>(state);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());

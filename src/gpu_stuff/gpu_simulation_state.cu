@@ -79,9 +79,11 @@ static void allocate_candidates(
     CUDA_CHECK(cudaMalloc(&candidates.valid, n * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&candidates.selected, n * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&candidates.parent_id, n * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&candidates.selected_by_front, max_fronts * sizeof(int)));
 
     //setting variables to zero
     CUDA_CHECK(cudaMemset(candidates.valid, 0, n * sizeof(int)));
+    CUDA_CHECK(cudaMemset(candidates.selected_by_front, -1, max_fronts * sizeof(int)));
     CUDA_CHECK(cudaMemset(candidates.selected, 0, n * sizeof(int)));
 }
 
@@ -153,7 +155,9 @@ void free_gpu_state(GpuSimulationState& state) {
     cudaFree(state.fronts.branch_id);
     state.fronts.branch_id=nullptr;
     cudaFree(state.fronts.parent_sphere_id);
-    state.fronts.parent_sphere_id=nullptr;                  
+    state.fronts.parent_sphere_id=nullptr; 
+    cudaFree(state.candidates.selected_by_front);
+    state.candidates.selected_by_front = nullptr;
     cudaFree(state.fronts.active);
     state.fronts.active=nullptr;
     cudaFree(state.fronts.count);
