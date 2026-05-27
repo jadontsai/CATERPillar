@@ -90,7 +90,7 @@ void select_valid_candidate_gpu(GpuSimulationState &state){
     }
 
     int select_blocks = gpu_num_blocks(front_count);
-    clear_selected_by_front_kernel<<<front_blocks, GPU_THREADS_PER_BLOCK>>>(
+    clear_selected_by_front_kernel<<<select_blocks, GPU_THREADS_PER_BLOCK>>>(
         state
     );
     CUDA_CHECK(cudaGetLastError());
