@@ -62,8 +62,8 @@ struct GpuCandidateTable {
     int* valid = nullptr;
     int* selected = nullptr;//self explanatory
     int* selected_by_front = nullptr;
-    int* candidates_per_front = nullptr;
-    int* total_candidates = nullptr;
+    int candidates_per_front = 0;
+    int total_candidates = 0;
 };
 
 struct GpuSimulationState {
