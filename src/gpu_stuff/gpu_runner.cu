@@ -207,7 +207,7 @@ void run_gpu_simulation(const GpuParameters& params) {
           << " inbox_ms=" << inbox_ms
           << " collision_ms=" << collision_ms
           << " select_ms=" << select_ms
-          << " selected_conflict_ms=" << selected_conflict_ms
+          //<< " selected_conflict_ms=" << selected_conflict_ms
           << " commit_ms=" << commit_ms
           << std::endl;
     //     build_gpu_spatial_grid(state, grid);
