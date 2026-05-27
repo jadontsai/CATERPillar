@@ -19,19 +19,41 @@ static void allocate_spheres(GpuSphereTable& spheres, int capacity) {
     //making the arrays
     spheres.capacity = capacity;
     //9 variables
-    CUDA_CHECK(cudaMalloc(&spheres.x, capacity * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&spheres.x, capacity * sizeof(float)));//max spheres (10000)* sizeof
+    std::cout << "1" << std::endl;
+
     CUDA_CHECK(cudaMalloc(&spheres.y, capacity * sizeof(float)));
+        std::cout << "12" << std::endl;
+
     CUDA_CHECK(cudaMalloc(&spheres.z, capacity * sizeof(float)));
+        std::cout << "13" << std::endl;
+
     CUDA_CHECK(cudaMalloc(&spheres.r, capacity * sizeof(float)));
+        std::cout << "14" << std::endl;
+
     CUDA_CHECK(cudaMalloc(&spheres.base_r, capacity * sizeof(float)));
+        std::cout << "15" << std::endl;
+
     CUDA_CHECK(cudaMalloc(&spheres.object_type, capacity * sizeof(int)));
+        std::cout << "16" << std::endl;
+
     CUDA_CHECK(cudaMalloc(&spheres.object_id, capacity * sizeof(int)));
+        std::cout << "17" << std::endl;
+
     CUDA_CHECK(cudaMalloc(&spheres.branch_id, capacity * sizeof(int)));
+        std::cout << "18" << std::endl;
+
     CUDA_CHECK(cudaMalloc(&spheres.parent_sphere_id, capacity * sizeof(int)));
+        std::cout << "19" << std::endl;
+
     CUDA_CHECK(cudaMalloc(&spheres.count, sizeof(int)));
+        std::cout << "123" << std::endl;
+
 
     //memset initializes stuff, in this case the count is zero at the start
     CUDA_CHECK(cudaMemset(spheres.count, 0, sizeof(int)));
+        std::cout << "132" << std::endl;
+
 }
 
 static void allocate_fronts(GpuGrowthFrontTable& fronts, int capacity) {
