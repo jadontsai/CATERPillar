@@ -145,7 +145,17 @@ void spatial_grid_collision_check_kernel(
                 }
             }
         }
-    } }// namespace
+    } 
+// __global__
+// void spatial_grid_collision_check_kernel(
+//     GpuSimulationState state,
+//     GpuSpatialGrid grid
+// ) {
+
+
+// }
+
+}// namespace
 
 void run_collision_check(
     GpuSimulationState& state,
@@ -180,9 +190,9 @@ void run_selected_candidate_conflict_check(
 
     int blocks = gpu_num_blocks(front_count);
 
-    selected_candidate_conflict_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(
-        state
-    );
+    // selected_candidate_conflict_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(
+    //     state
+    // );
 
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
