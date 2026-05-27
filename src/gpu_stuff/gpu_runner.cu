@@ -196,7 +196,7 @@ void run_gpu_simulation(const GpuParameters& params) {
     CUDA_CHECK(cudaDeviceSynchronize());
     std::cout << "after initislize_scene" << std::endl;
     build_gpu_spatial_grid(state, grid);
-    for (int i = 0; i <1000; ++i){
+    for (int i = 0; i <100000; ++i){
 
     float gen_ms = time_cuda_stage_ms([&]() {
         gpu_generate_candidates(state, i);
