@@ -171,12 +171,18 @@ void run_gpu_simulation(const GpuParameters& params) {
     std::cout << "after spatialgrid struct creation" << std::endl;
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
+//     void allocate_gpu_spatial_grid(GpuSpatialGrid& grid, 
+//     float voxel_edge_length, 
+//     float cell_size,
+//     int max_spheres,
+//     int max_entries
+// );
     allocate_gpu_spatial_grid(
         grid,
         2.0f * params.min_radius,
         params.voxel_edge_length,
         params.max_spheres,
-        params.max_spheres * 16
+        params.max_spheres * 256
     );
     std::cout << "after grid fcn creation" << std::endl;
     CUDA_CHECK(cudaGetLastError());
