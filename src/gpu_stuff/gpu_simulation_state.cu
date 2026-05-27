@@ -29,9 +29,13 @@ static void allocate_spheres(GpuSphereTable& spheres, int capacity) {
     CUDA_CHECK(cudaMalloc(&spheres.branch_id, capacity * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&spheres.parent_sphere_id, capacity * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&spheres.count, sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&spheres.capacity, sizeof(int)));
+
 
     //memset initializes stuff, in this case the count is zero at the start
     CUDA_CHECK(cudaMemset(spheres.count, 0, sizeof(int)));
+    CUDA_CHECK(cudaMemset(spheres.capacity, 0, sizeof(int)));
+
 }
 
 static void allocate_fronts(GpuGrowthFrontTable& fronts, int capacity) {
@@ -53,10 +57,13 @@ static void allocate_fronts(GpuGrowthFrontTable& fronts, int capacity) {
     CUDA_CHECK(cudaMalloc(&fronts.parent_sphere_id, capacity * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&fronts.active, capacity * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&fronts.count, sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&fronts.capacity, sizeof(int)));
 
     //setting variables
     CUDA_CHECK(cudaMemset(fronts.active, 0, capacity * sizeof(int)));
     CUDA_CHECK(cudaMemset(fronts.count, 0, sizeof(int)));
+    CUDA_CHECK(cudaMemset(fronts.capacity, 0, sizeof(int)));
+
 }
 
 static void allocate_candidates(
