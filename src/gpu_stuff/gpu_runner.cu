@@ -160,8 +160,17 @@ void run_gpu_simulation(const GpuParameters& params) {
     std::cout << "doing gpu stuff..." << std::endl;
     auto start_time = std::chrono::high_resolution_clock::now();
     GpuSimulationState state;
+    std::cout << "after state struct creation" << std::endl;
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
     allocate_gpu_state(state, params);
+    std::cout << "after allocate gpu state fcn" << std::endl;
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
     GpuSpatialGrid grid;
+    std::cout << "after spatialgrid struct creation" << std::endl;
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
     allocate_gpu_spatial_grid(
         grid,
         2.0f * params.min_radius,
@@ -169,9 +178,14 @@ void run_gpu_simulation(const GpuParameters& params) {
         params.max_spheres,
         params.max_spheres * 16
     );
+    std::cout << "after grid fcn creation" << std::endl;
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
     //so state is on the cpu stack, but it's pointing to GPU memory
 
     initialize_scene_gpu(state);
+    std::cout << "after init scene" << std::endl;
+
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     std::cout << "after initislize_scene" << std::endl;
