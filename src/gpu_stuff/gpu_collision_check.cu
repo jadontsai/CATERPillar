@@ -118,7 +118,7 @@ void spatial_grid_collision_check_kernel(
                 if (flat_cell_idx < 0 || flat_cell_idx >= grid.num_cells) {
                     continue;
                 }
-                int count = grid.cell_count[flat_cell_idx];
+                int count = grid.cell_counts[flat_cell_idx];
                 count = min(count, grid.max_spheres_per_cell);
                 for (int i =0; i<count;++i){
                     int sphere_idx = grid.cell_sphere_ids[flat_cell_idx
@@ -134,17 +134,6 @@ void spatial_grid_collision_check_kernel(
                     }
                 }
 
-                for (int entry_idx = start; entry_idx < end; ++entry_idx) {
-                    int sphere_idx = grid.grid_sphere_id[entry_idx];
-                    if (is_recent_ancestor(
-                            sphere_idx,
-                            parent_id,
-                            state,
-                            skip_depth
-                        )) {
-                        continue;
-                    }
-
                     float sx = state.spheres.x[sphere_idx];
                     float sy = state.spheres.y[sphere_idx];
                     float sz = state.spheres.z[sphere_idx];
@@ -157,8 +146,7 @@ void spatial_grid_collision_check_kernel(
                 }
             }
         }
-    }
-} // namespace
+    } // namespace
 
 void run_collision_check(
     GpuSimulationState& state,
@@ -173,43 +161,30 @@ void run_collision_check(
 
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
-}void run_collision_check(
-    GpuSimulationState& state,
-    GpuSpatialGrid& grid
-) {
-    int blocks = gpu_num_blocks(state.candidates.total_candidates);
-
-    spatial_grid_collision_check_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(
-        state,
-        grid
-    );
-
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
 }
 
-void run_selected_candidate_conflict_check(
-    GpuSimulationState& state
-) {
-    int front_count = 0;
+// void run_selected_candidate_conflict_check(
+//     GpuSimulationState& state
+// ) {
+//     int front_count = 0;
 
-    CUDA_CHECK(cudaMemcpy(
-        &front_count,
-        state.fronts.count,
-        sizeof(int),
-        cudaMemcpyDeviceToHost
-    ));
+//     CUDA_CHECK(cudaMemcpy(
+//         &front_count,
+//         state.fronts.count,
+//         sizeof(int),
+//         cudaMemcpyDeviceToHost
+//     ));
 
-    if (front_count <= 0) {
-        return;
-    }
+//     if (front_count <= 0) {
+//         return;
+//     }
 
-    int blocks = gpu_num_blocks(front_count);
+//     int blocks = gpu_num_blocks(front_count);
 
-    selected_candidate_conflict_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(
-        state
-    );
+//     selected_candidate_conflict_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(
+//         state
+//     );
 
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
-}
+//     CUDA_CHECK(cudaGetLastError());
+//     CUDA_CHECK(cudaDeviceSynchronize());
+// }
