@@ -132,21 +132,20 @@ void spatial_grid_collision_check_kernel(
                     )) {
                         continue;
                     }
-                }
-
+                
                     float sx = state.spheres.x[sphere_idx];
                     float sy = state.spheres.y[sphere_idx];
                     float sz = state.spheres.z[sphere_idx];
                     float sr = state.spheres.r[sphere_idx];
                     //if touching logic:
-                    if (spheres_overlap(cx,cy,cz,cr,sx,sy,sz,sr)){
+                    if (overlap(cx,cy,cz,cr,sx,sy,sz,sr)){
                         state.candidates.valid[candidate_idx] = 0;
                         return;
                     }
                 }
             }
         }
-    } // namespace
+    } }// namespace
 
 void run_collision_check(
     GpuSimulationState& state,
