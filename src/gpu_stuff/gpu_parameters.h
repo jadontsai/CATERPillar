@@ -17,8 +17,8 @@ struct GpuParameters {
     unsigned long long seed = 1;// apparently gpus like 64 bit seeds? anyways 1 is default
 
     //TEMP FOR DEBUGGING
-    int num_axons = 64;
-    int num_glial_somas = 20;
+    int num_axons = 300;
+    int num_glial_somas = 0;
     int num_pial_arteries = 4;
     int num_pial_veins = 2;
     int num_diving_arteries = 8;
