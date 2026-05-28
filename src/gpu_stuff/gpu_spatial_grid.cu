@@ -31,7 +31,7 @@
 
 namespace{
 __global__
-void num_sphere_grid_entries_kernel(
+void num_sphere_grid_entries_kernel(//helper function to count number of grids a sphere touches
     GpuSimulationState state,
     GpuSpatialGrid grid,
     int begin,
