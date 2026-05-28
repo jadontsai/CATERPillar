@@ -134,7 +134,7 @@ void kernel_generate_candidates(GpuSimulationState state, int step) {
       base_radius,
       state.params.beading * base_radius
       );
-      float bounds = state.params.bound;
+      float bounds = state.params.bounds;
       radius = fminf(fmaxf(radius, (1.0f-bounds) * base_radius), (1.0f+bounds) * base_radius);//also temporary clamp values
       radius = fmaxf(radius, state.params.min_radius);
       float overlap_factor = fmaxf(1.0f, state.params.overlap_factor);
