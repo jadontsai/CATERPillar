@@ -1,5 +1,4 @@
-#pragma once //only include header file once
-//
+#pragma once
 struct GpuParameters {
     //different from original, just barebones for now
     //keep things as floats for now, no need for double
@@ -19,15 +18,31 @@ struct GpuParameters {
 
     //TEMP FOR DEBUGGING
     int num_axons = 64;
-
     int num_glial_somas = 20;
+    int num_pial_arteries = 4;
+    int num_pial_veins = 2;
+    int num_diving_arteries = 8;
+    int num_ascending_veins = 4;
+    float artery_to_vein_ratio = 2.1f;//from paper
+    // MAB: fewer branches off diving arteries than ascending veins.
+    int artery_branches_per_diving_vessel = 2;
+    int vein_branches_per_ascending_vessel = 5;
+    
+    //relative radii
     float glial_soma_radius_mean = 6.0f;
     float glial_soma_radius_std = 0.5f;
     int glial_primary_processes = 4;
     float glial_process_radius_fraction = 0.25f;
     float glial_process_persistence = 0.70f;
-
-    int num_blood_vessels = 20;
-    float blood_vessel_radius = 2.0f;
-    float blood_vessel_persistence = 0.95f;
+    //blood
+    float pial_artery_radius = 3.0f;
+    float pial_vein_radius = 4.0f;
+    float penetrating_artery_radius = 1.5f;
+    float penetrating_vein_radius = 2.0f;
+    float capillary_radius = 0.4f;
+    float vessel_persistence = 0.97f;
+    float capillary_persistence = 0.50f;
+    int pial_vessel_steps = 40;
+    int penetrating_vessel_steps = 80;
+    int capillary_steps = 20;
 };

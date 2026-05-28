@@ -155,6 +155,53 @@ void spatial_grid_collision_check_kernel(
 
 // }
 
+global void selected_candidate_conflict_kernel(GpuSimulationState state){
+    int front_id = blockIdx.x * blockDim.x + threadIdx.x;
+    int front_count = *state.fronts.count;
+
+    if (front_id >= front_count ||state.fronts.active[front_id] == 0) {
+        return;
+    }
+
+    int cand_id = state.candidates.selected_by_front[front_id];
+    if (state.candidates.selected[cand_id] == 0 ||
+        state.candidates.valid[cand_id] == 0 ||cand_id < 0) {
+        return;
+    }
+
+    float ix = state.candidates.x[cand_id];
+    float iy = state.candidates.y[cand_id];
+    float iz = state.candidates.z[cand_id];
+    float ir = state.candidates.r[cand_id];
+
+    for (int i = 0; i < front_id; ++i) {
+        if (state.fronts.active[i] == 0) {
+            continue;
+        }
+        int cand_2 = state.candidates.selected_by_front[i];
+
+        if (cand_2 < 0) {
+            continue;
+        }
+
+        if (state.candidates.selected[cand_2] == 0 ||
+            state.candidates.valid[cand_2] == 0) {
+            continue;
+        }
+
+        float jx = state.candidates.x[cand_2];
+        float jy = state.candidates.y[cand_2];
+        float jz = state.candidates.z[cand_2];
+        float jr = state.candidates.r[cand_2];
+
+        if (overlap(ix, iy, iz, ir, jx, jy, jz, jr)) {
+            state.candidates.valid[cand_i] = 0;
+            state.candidates.selected[cand_i] = 0;
+            state.candidates.selected_by_front[front_i] = -1;
+            return;
+        }
+    }
+}
 }// namespace
 
 void run_collision_check(
@@ -190,9 +237,9 @@ void run_selected_candidate_conflict_check(
 
     int blocks = gpu_num_blocks(front_count);
 
-    // selected_candidate_conflict_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(
-    //     state
-    // );
+    selected_candidate_conflict_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(
+        state
+    );
 
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());

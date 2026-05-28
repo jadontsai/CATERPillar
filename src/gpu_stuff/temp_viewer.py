@@ -11,7 +11,7 @@ ax = fig.add_subplot(111, projection="3d")
 for object_id, g in df.groupby("object_id"):
     g = g.sort_values("sphere_id")
     ax.plot(g["x"], g["y"], g["z"], linewidth=1)
-    ax.scatter(g["x"], g["y"], g["z"], s=(g["r"]) ** 2)
+    ax.scatter(g["x"], g["y"], g["z"], s=(g["r"]*10) ** 2)
 
 #swc version
 # df = pd.read_csv("glial_test_2.csv", sep=r"\s+")
