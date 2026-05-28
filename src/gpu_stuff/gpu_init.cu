@@ -443,7 +443,6 @@ void initialize_scene_gpu(GpuSimulationState& state) {
     int soma_start_sphere_id = num_axons;
     int num_soma_spheres = num_glial_somas;
 
-    int axon_front_start = 0;
     int glial_process_front_start = num_axons;
 
     int num_glial_process_fronts = num_glial_somas * processes_per_soma;
@@ -498,8 +497,6 @@ void initialize_scene_gpu(GpuSimulationState& state) {
         sizeof(int),
         cudaMemcpyHostToDevice
     ));
-
-    (void)axon_front_start;
 }
 
 void initialize_multiple_fronts_gpu(GpuSimulationState& state, int num_fronts){
