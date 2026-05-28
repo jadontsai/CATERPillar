@@ -155,7 +155,7 @@ void spatial_grid_collision_check_kernel(
 
 // }
 
-global void selected_candidate_conflict_kernel(GpuSimulationState state){
+__global__ void selected_candidate_conflict_kernel(GpuSimulationState state){
     int front_id = blockIdx.x * blockDim.x + threadIdx.x;
     int front_count = *state.fronts.count;
 
