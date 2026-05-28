@@ -145,28 +145,19 @@ void spatial_grid_collision_check_kernel(
                 }
             }
         }
-    } 
-// __global__
-// void spatial_grid_collision_check_kernel(
-//     GpuSimulationState state,
-//     GpuSpatialGrid grid
-// ) {
-
-
-// }
-
-__global__ 
-void selected_candidate_conflict_kernel(GpuSimulationState state){
+    }
+__global__
+void selected_candidate_conflict_kernel(
+    GpuSimulationState state){
     int front_id = blockIdx.x * blockDim.x + threadIdx.x;
     int front_count = *state.fronts.count;
 
     if (front_id >= front_count ||state.fronts.active[front_id] == 0) {
         return;
     }
-
     int cand_id = state.candidates.selected_by_front[front_id];
     if (state.candidates.selected[cand_id] == 0 ||
-        state.candidates.valid[cand_id] == 0 ||cand_id < 0) {
+        state.candidates.valid[cand_id] == 0 || cand_id < 0) {
         return;
     }
 
@@ -175,7 +166,7 @@ void selected_candidate_conflict_kernel(GpuSimulationState state){
     float iz = state.candidates.z[cand_id];
     float ir = state.candidates.r[cand_id];
 
-    for (int i = 0; i < front_id; ++i) {
+    for (int i = 0; i < front_count; ++i) {
         if (state.fronts.active[i] == 0) {
             continue;
         }
@@ -185,8 +176,7 @@ void selected_candidate_conflict_kernel(GpuSimulationState state){
             continue;
         }
 
-        if (state.candidates.selected[cand_2] == 0 ||
-            state.candidates.valid[cand_2] == 0) {
+        if (state.candidates.valid[cand_2] == 0) {
             continue;
         }
 
@@ -196,9 +186,9 @@ void selected_candidate_conflict_kernel(GpuSimulationState state){
         float jr = state.candidates.r[cand_2];
 
         if (overlap(ix, iy, iz, ir, jx, jy, jz, jr)) {
-            state.candidates.valid[cand_i] = 0;
-            state.candidates.selected[cand_i] = 0;
-            state.candidates.selected_by_front[front_i] = -1;
+            state.candidates.valid[cand_id] = 0;
+            state.candidates.selected[cand_id] = 0;
+            state.candidates.selected_by_front[front_id] = -1;
             return;
         }
     }
