@@ -156,8 +156,10 @@ void selected_candidate_conflict_kernel(
         return;
     }
     int cand_id = state.candidates.selected_by_front[front_id];
-    if (state.candidates.selected[cand_id] == 0 ||
-        state.candidates.valid[cand_id] == 0 || cand_id < 0) {
+    // i'm pretty sure c++ short circuits?
+    if (cand_id < 0 ||
+        state.candidates.selected[cand_id] == 0 ||
+        state.candidates.valid[cand_id] == 0) {
         return;
     }
 
