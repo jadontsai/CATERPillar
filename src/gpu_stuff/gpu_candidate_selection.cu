@@ -60,6 +60,7 @@ void select_valid_candidate_kernel(GpuSimulationState state){
     for (int candidate_id = start; candidate_id < end; ++candidate_id) {
         if (state.candidates.valid[candidate_id] != 0) {
             //just make the first one valid, may change behaviour later
+            //does introduce a bias towards the lower numbers
             state.candidates.selected[candidate_id] = 1;
             state.candidates.selected_by_front[front_id] = candidate_id;
 

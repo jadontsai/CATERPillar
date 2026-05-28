@@ -11,7 +11,7 @@
 inline __device__
 unsigned int hash(unsigned int x) {
       //some psuedo random hashing function
-      x = ((x >> 16) ^ x) * 0x6767f2a;
+      x = ((x >> 16) ^ x) * 0x6767f2a;//random values
       x = ((x >> 16) ^ x) * 0x41d923b;
       x = (x >> 16) ^ x;
       return x;
@@ -73,7 +73,7 @@ inline __device__
 float sample_gamma_integer_shape(unsigned int seed, int shape, float scale){
       float sum = 0.0f;
       for(int i = 0; i< shape; ++i){
-            float u = random_float(seed + 1234u * static_cast<unsigned int>(i));
+            float u = random_float(seed + 1234u * static_cast<unsigned int>(i));//random value
             u = fmaxf(u, 1e-7f);
             sum += -logf(u);
       }

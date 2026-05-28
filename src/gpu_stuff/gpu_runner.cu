@@ -28,16 +28,15 @@
         }                                                                  \
     } while (0)
 
-__global__//launched from cpu, runs on gpu
-//this is just to see if we can actually do anything with the GPU, not used in actual axon stuff
-void gpu_smoke_test_kernel(int* error_code) {
-    //threadIdx.x is the thread index within the block, blockIdx.x is the block index within the grid
-    if (threadIdx.x == 0 && blockIdx.x == 0) {
-        *error_code = 1234;
-        //if it prints this, then this worked
-    }
-}
-
+// __global__//launched from cpu, runs on gpu
+// //this is just to see if we can actually do anything with the GPU, not used in actual axon stuff
+// void gpu_smoke_test_kernel(int* error_code) {
+//     //threadIdx.x is the thread index within the block, blockIdx.x is the block index within the grid
+//     if (threadIdx.x == 0 && blockIdx.x == 0) {
+//         *error_code = 1234;
+//         //if it prints this, then this worked
+//     }
+// }
 
 float time_cuda_stage_ms(
     const std::function<void()>& stage
@@ -182,7 +181,7 @@ void run_gpu_simulation(const GpuParameters& params) {
         params.voxel_edge_length,
         2.0f * params.min_radius,
         params.max_spheres,
-        1200000000.0f
+        params.max_entries
     );
     std::cout << "after grid fcn creation" << std::endl;
     CUDA_CHECK(cudaGetLastError());
@@ -196,8 +195,8 @@ void run_gpu_simulation(const GpuParameters& params) {
     CUDA_CHECK(cudaDeviceSynchronize());
     std::cout << "after initislize_scene" << std::endl;
     build_gpu_spatial_grid(state, grid);
-    for (int i = 0; i <1000000; ++i){
-
+    int runs = params.runs;
+    for (int i = 0; i <runs; ++i){
     float gen_ms = time_cuda_stage_ms([&]() {
         gpu_generate_candidates(state, i);
     });
@@ -217,7 +216,6 @@ void run_gpu_simulation(const GpuParameters& params) {
     //    run_selected_candidate_conflict_check(state);
     // });
 
-
     float commit_ms = time_cuda_stage_ms([&]() {
         commit_candidates_and_update_grid_gpu(state, grid);
     });
@@ -230,26 +228,8 @@ void run_gpu_simulation(const GpuParameters& params) {
          // << " selected_conflict_ms=" << selected_conflict_ms
           << " commit_ms=" << commit_ms
           << std::endl;
-    //     build_gpu_spatial_grid(state, grid);
-    //     std::cout << "after build_gpu_spatial_grid" << i << std::endl;
-
-    //     gpu_generate_candidates(state, i);
-    //     std::cout << "after gpu_generate_candidates" << std::endl;
-
-    //     run_in_box_check(state);
-    //     std::cout << "after run_in_box_check" << std::endl;
-    //     run_collision_check(state, grid);
-    //     std::cout << "after run_collision_check" << std::endl;
-
-    //     select_valid_candidate_gpu(state);
-    //     std::cout << "after select_valid_candidate_gpu" << std::endl;
-    //     //write_csv("candidates_step_" + std::to_string(i) + ".csv", state, 258);
-    //    // std::cout << "after write_csv_temp" << std::endl;
-    //     commit_candidates_gpu(state);
-    //     std::cout << "after commit_candidates_gpu" << std::endl;
     }
 
-    //"spheres" is the input if you wanna see the commited stuff
     write_final_csv("final.csv", state);
     std::cout << "after write_csv_final" << std::endl;
     CUDA_CHECK(cudaDeviceSynchronize());
@@ -259,7 +239,7 @@ void run_gpu_simulation(const GpuParameters& params) {
     double elapsed_ms =
         std::chrono::duration<double, std::milli>(end_time - start_time).count();
 
-    std::cout << "GPU simulation time (ms): " << elapsed_ms << std::endl;
+    std::cout << "GPU elapsed time (ms): " << elapsed_ms << std::endl;
 
     int sphere_count = 0;
 

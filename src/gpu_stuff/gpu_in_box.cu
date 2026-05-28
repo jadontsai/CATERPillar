@@ -1,5 +1,5 @@
 #include "gpu_in_box.h"
-
+#include "gpu_launch.config.h"
 #include <cuda_runtime.h>//for the usual cuda functions
 
 #include <stdexcept>
@@ -43,11 +43,9 @@ void in_box_check_kernel(GpuSimulationState state) {
 }
 
 void run_in_box_check(GpuSimulationState& state){
-    int threads_per_block = 256;
-    int blocks = (state.candidates.total_candidates + 
-        threads_per_block - 1) / threads_per_block;
+    int blocks = gpu_num_blocks(state.candidates.total_candidates);
     
-    in_box_check_kernel<<<blocks, threads_per_block>>>(state);
+    in_box_check_kernel<<<blocks, GPU_THREADS_PER_BLOCK>>>(state);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     }

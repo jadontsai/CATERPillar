@@ -8,11 +8,20 @@ struct GpuParameters {
     float alpha = 4.0f;
     float beta = 0.25f;
     float overlap_factor = 4.0f;
+    float beading = 0.05f;
+    float persistence = 0.9f;
+    float bounds = 0.2f;
 
     int max_spheres = 10000000;//small for now (not small anymore)
+    int max_entries = 1200000000;
     int max_growth_fronts = 1000;
     int candidates_per_front = 1024;
     int max_steps = 100;
+    int runs = 100000;
+
+    //geometries
+    int grid_width = 8; //initial placement width (total is this squared)
+    float spacing = 5.0f; // min spacing (wait this is overconstrained)
 
     unsigned long long seed = 1;// apparently gpus like 64 bit seeds? anyways 1 is default
 

@@ -29,7 +29,7 @@
         }                                                                  \
     } while (0)
 
-namespace{//makes things private
+namespace{
 __global__
 void num_sphere_grid_entries_kernel(
     GpuSimulationState state,
@@ -37,16 +37,13 @@ void num_sphere_grid_entries_kernel(
     int begin,
     int end
 )   
-{//how many grid cells does a sphere touch
-    int local_idx = blockIdx.x * blockDim.x + threadIdx.x;
+{   int local_idx = blockIdx.x * blockDim.x + threadIdx.x;
     int sphere_idx = local_idx + begin;
 
     //avoid out of bounds access, so excess threads exit early
     if (sphere_idx >= end) return;
 
     int x_min, x_max, y_min, y_max, z_min, z_max;
-
-
     cell_bounds(
         state.spheres.x[sphere_idx],
         state.spheres.y[sphere_idx],
@@ -55,21 +52,10 @@ void num_sphere_grid_entries_kernel(
         grid,
         x_min, x_max, y_min, y_max, z_min, z_max
     );
-//OLD-------------------------------------------------
-    // //number of cells touched is the product of the ranges in each dimension, so if 
-    // //say a sphere ranges from x=56 to x=58, that's 3 cells in the x dimension (56, 57, 58)
-    // // multiply that by the number of cells in the y and z dimensions to get total number of cells touched
-    // int entries_for_sphere = (x_max - x_min + 1) * (y_max - y_min + 1) * (z_max - z_min + 1);
-
-    // //stores the count of entries for each sphere, which 
-    // // will be used to compute offsets for where to write
-    // // the actual entries in the next kernel
-    // grid.sphere_touching_num[sphere_idx] = entries_for_sphere;
-    //old_________________________________________
     for (int z = z_min; z <= z_max; ++z) {
         for (int y = y_min; y <= y_max; ++y) {
             for (int x = x_min; x <= x_max; ++x) {
-                int cell_idx = flatten_index(x, y, z, grid);
+                int cell_idx = flatten_index(x, y, z, grid);//to make things one dimensional
 
                 if (cell_idx < 0 || cell_idx >= grid.num_cells) {
                     continue;

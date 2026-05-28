@@ -11,12 +11,9 @@ struct GpuSpatialGrid{
     //total cells is the product of the three numbers above
     int num_cells = 0;
     //maximum spheres in cell, for now just a safety thing,
-    // don't think there's a physical reason
     int max_spheres = 0;
-    //more than max spheres because one sphere can be in more than
-    //one cell
+    //more than max spheres because one sphere can be in more than one cell
     int max_entries = 0;
-
     // Fixed bucket capacity per cell.
     int max_spheres_per_cell = 0;
 

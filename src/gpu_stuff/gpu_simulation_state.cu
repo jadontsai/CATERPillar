@@ -212,8 +212,4 @@ void free_gpu_state(GpuSimulationState& state) {
     state.done=nullptr;
     cudaFree(state.error_code);
     state.error_code=nullptr;
-    //sanity check 139-106=34 variables freed,
-    // 9 in spheres, 13 in fronts, 10 in candidates, 
-    // 2 in state
-    //woah i can add 
 }

@@ -100,7 +100,7 @@ void kernel_generate_candidates(GpuSimulationState state, int step) {
       float old_dx = state.fronts.dir_x[front_id];
       float old_dy = state.fronts.dir_y[front_id];
       float old_dz = state.fronts.dir_z[front_id];
-      float persistence = 0.90f;
+      float persistence = state.params.persistence;
       float dx;
       float dy;
       float dz;
@@ -117,9 +117,7 @@ void kernel_generate_candidates(GpuSimulationState state, int step) {
             dy,
             dz
       );
-      //CHANGE THIS LATER WHEN I IMPLEMENT GAMMA DISTRIBUTION
-      //==========================================================================
-      //float radius = state.params.min_radius;
+
       int shape = static_cast<int>(roundf(state.params.alpha));
       //float radius = sample_gamma_integer(seed + 50000u, shape, state.params.beta);
       // float previous_radius = state.fronts.r[front_id];
@@ -132,11 +130,12 @@ void kernel_generate_candidates(GpuSimulationState state, int step) {
       float base_radius = state.fronts.base_r[front_id];
       //some gamma distributed value
       float radius = sample_normal_box_muller(
-      seed + 50000u,
+      seed + 50000u,//random value
       base_radius,
-      0.05f * base_radius
+      state.params.beading * base_radius
       );
-      radius = fminf(fmaxf(radius, 0.8f * base_radius), 1.2f * base_radius);//also temporary clamp values
+      float bounds = state.params.bound;
+      radius = fminf(fmaxf(radius, (1.0f-bounds) * base_radius), (1.0f+bounds) * base_radius);//also temporary clamp values
       radius = fmaxf(radius, state.params.min_radius);
       float overlap_factor = fmaxf(1.0f, state.params.overlap_factor);
       //error handling if the factor is less than 1 for whatever reason, but maybe that should be more graceful

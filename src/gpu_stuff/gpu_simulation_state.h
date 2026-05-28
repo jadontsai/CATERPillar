@@ -11,8 +11,6 @@ struct GpuSphereTable {
     float* r = nullptr;
     float* base_r = nullptr; //for more realistic growth
 
-
-
     int* object_type = nullptr;//some number for some cell type, 0 for glial, etc etc
     int* object_id = nullptr;//which object (like axon 23) a sphere belongs to
     int* branch_id = nullptr;//which branch (only for glial cells)

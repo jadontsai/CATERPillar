@@ -3,8 +3,6 @@
 // Radius size follows a rough gamma distribution (can only take integers for now)
 // Gamma distribution is a sum of two exponentials (Hence why only integer inputs)
 
-
-
 #include "gpu_init.h"
 #include "gpu_util.cuh"
 #include "gpu_object_types.h"
@@ -95,12 +93,12 @@ void initialize_multiple_fronts_kernel(GpuSimulationState state, int num_fronts)
     float voxel_edge = state.params.voxel_edge_length;
 
     //temporary deterministic placement to spread around fronts
-    int grid_width = 8;
+    int grid_width = state.params.grid_width;
 
     int ix = id % grid_width;
     int iy = id / grid_width;
 
-    float spacing = 5.0f;  // temp
+    float spacing = state.params.spacing;  // temp
 
     float center = 0.5f * voxel_edge;
 
@@ -119,7 +117,7 @@ void initialize_multiple_fronts_kernel(GpuSimulationState state, int num_fronts)
         );//some random value
 
     float base_radius = sample_gamma_integer_shape(
-        seed + 50000u,
+        seed + 50000u,//random
         shape,
         state.params.beta
     );
@@ -145,7 +143,7 @@ void initialize_multiple_fronts_kernel(GpuSimulationState state, int num_fronts)
 
     state.fronts.dir_x[id] = 0.0f;
     state.fronts.dir_y[id] = 0.0f;
-    state.fronts.dir_z[id] = 1.0f;
+    state.fronts.dir_z[id] = 1.0f;//ASSUMES GROWTH IN Z direction
 
     state.fronts.object_type[id] = 0;
     state.fronts.object_id[id] = id;
@@ -164,7 +162,7 @@ float sample_axon_base_radius(
 
     unsigned int seed = static_cast<unsigned int>(
         state.params.seed +
-        7919ULL * static_cast<unsigned long long>(object_id)
+        9876ULL * static_cast<unsigned long long>(object_id)//rands
     );
 
     float radius = sample_gamma_integer_shape(
@@ -184,7 +182,7 @@ float sample_glial_soma_radius(
 ) {
     unsigned int seed = static_cast<unsigned int>(
         state.params.seed +
-        104729ULL * static_cast<unsigned long long>(soma_id)
+        123432ULL * static_cast<unsigned long long>(soma_id) //random
     );
 
     float radius = sample_normal_box_muller(
@@ -216,13 +214,13 @@ void initialize_many_axon_fronts_kernel(
     }
 
     float voxel_edge = state.params.voxel_edge_length;
-    int grid_width = 8;
+    int grid_width = state.params.grid_widthh;
     int ix = id % grid_width;
     int iy = id / grid_width;
-    float spacing = 5.0f;
+    float spacing = state.params.spacing;
     float x = spacing * static_cast<float>(ix + 1);
     float y = spacing * static_cast<float>(iy + 1);
-    float z = 0.5f * voxel_edge;
+    float z = 0.5f * voxel_edge;//middle
 
     float base_radius = sample_axon_base_radius(state, id);
     float r = base_radius;
@@ -270,18 +268,18 @@ void initialize_glial_somas_kernel(
     int sphere_id = start_sphere_id + soma_id;
 
     if (sphere_id >= state.spheres.capacity) {
-        *state.error_code = 2;
+        *state.error_code = 2;//over capacity (i should be more consistent with these)
         return;
     }
 
     float voxel_edge = state.params.voxel_edge_length;
 
-    int grid_width = 8;
+    int grid_width = state.params.grid_width;
 
     int ix = soma_id % grid_width;
     int iy = soma_id / grid_width;
 
-    float spacing = 8.0f;
+    float spacing = state.params.spacing;
 
     float x = 0.25f * voxel_edge + spacing * static_cast<float>(ix);
     float y = 0.25f * voxel_edge + spacing * static_cast<float>(iy);
@@ -531,12 +529,12 @@ void initialize_multiple_fronts_gpu(GpuSimulationState& state, int num_fronts){
 
 
 
-//this thing is cpu callable, launches the gpu kernel
-void initialize_single_front_gpu(GpuSimulationState& state) {
-    initialize_single_front_kernel<<<1, 1>>>(state);
+// //this thing is cpu callable, launches the gpu kernel
+// void initialize_single_front_gpu(GpuSimulationState& state) {
+//     initialize_single_front_kernel<<<1, 1>>>(state);
 
-    CUDA_CHECK(cudaGetLastError());
-    //checks if the kernel launch actually worked
-    CUDA_CHECK(cudaDeviceSynchronize());
-   //wait for gpu to be done before cpu does anything (not neccesary later) 
-}
+//     CUDA_CHECK(cudaGetLastError());
+//     //checks if the kernel launch actually worked
+//     CUDA_CHECK(cudaDeviceSynchronize());
+//    //wait for gpu to be done before cpu does anything (not neccesary later) 
+// }

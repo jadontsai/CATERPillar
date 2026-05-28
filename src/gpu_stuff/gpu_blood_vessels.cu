@@ -1,7 +1,11 @@
-May make this the full readme later
+#include "gpu_blood_vessels.h"
+#include "gpu_util.cuh"
+#include "gpu_object_types.h"
+#include <cuda_runtime.h>
+#include <stdexcept>
+#include <string>
+#include <cmath>
 
-This is the helper function for malloc, dealloc, and memset
-```
 #define CUDA_CHECK(call)                                                   \
     do {                                                                   \
         cudaError_t err = call;                                            \
@@ -10,5 +14,14 @@ This is the helper function for malloc, dealloc, and memset
                 std::string("CUDA error: ") + cudaGetErrorString(err));    \
         }                                                                  \
     } while (0)
-```
-only changes should be in parameters.h, random seed values in util.cuh, init.cu and in generation.cu
+
+
+namespace{
+
+
+}
+
+void generate_blood_vessels_gpu(GpuSimulationState state){
+
+    
+}
