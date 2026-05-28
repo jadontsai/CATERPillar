@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 #quick and dirty 3D plotting
 # csv version
-df = pd.read_csv("final.csv")
+df = pd.read_csv("final (12).csv")
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection="3d")

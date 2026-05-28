@@ -213,9 +213,9 @@ void run_gpu_simulation(const GpuParameters& params) {
     float select_ms = time_cuda_stage_ms([&]() {
         select_valid_candidate_gpu(state);
     });
-    float selected_conflict_ms = time_cuda_stage_ms([&]() {
-       run_selected_candidate_conflict_check(state);
-    });
+    // float selected_conflict_ms = time_cuda_stage_ms([&]() {
+    //    run_selected_candidate_conflict_check(state);
+    // });
 
 
     float commit_ms = time_cuda_stage_ms([&]() {
@@ -227,7 +227,7 @@ void run_gpu_simulation(const GpuParameters& params) {
           << " inbox_ms=" << inbox_ms
           << " collision_ms=" << collision_ms
           << " select_ms=" << select_ms
-          << " selected_conflict_ms=" << selected_conflict_ms
+         // << " selected_conflict_ms=" << selected_conflict_ms
           << " commit_ms=" << commit_ms
           << std::endl;
     //     build_gpu_spatial_grid(state, grid);
