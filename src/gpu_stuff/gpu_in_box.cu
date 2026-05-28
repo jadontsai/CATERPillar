@@ -1,5 +1,5 @@
 #include "gpu_in_box.h"
-#include "gpu_launch.config.h"
+#include "gpu_launch_config.h"
 #include <cuda_runtime.h>//for the usual cuda functions
 
 #include <stdexcept>
