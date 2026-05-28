@@ -176,7 +176,7 @@ void selected_candidate_conflict_kernel(
         int cand_2 = state.candidates.selected_by_front[i];
 
         if (cand_2 < 0) {
-            <<std::cout<<"entered cand2 <0>"<< std::endl;
+            std::cout<<"entered cand2 <0>"<< std::endl;
 
             continue;
         }
