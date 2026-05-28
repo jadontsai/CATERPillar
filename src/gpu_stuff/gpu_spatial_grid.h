@@ -13,7 +13,7 @@ struct GpuSpatialGrid{
     //maximum spheres in cell, for now just a safety thing,
     int max_spheres = 0;
     //more than max spheres because one sphere can be in more than one cell
-    int max_entries = 0;
+    float max_entries = 0.0f;
     // Fixed bucket capacity per cell.
     int max_spheres_per_cell = 0;
 
@@ -32,7 +32,7 @@ void allocate_gpu_spatial_grid(GpuSpatialGrid& grid,
     float voxel_edge_length, 
     float cell_size,
     int max_spheres,
-    int max_entries
+    float max_entries
 );
 
 void free_gpu_spatial_grid(GpuSpatialGrid& grid);

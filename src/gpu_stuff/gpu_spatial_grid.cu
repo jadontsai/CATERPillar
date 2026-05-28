@@ -83,7 +83,7 @@ void allocate_gpu_spatial_grid(GpuSpatialGrid& grid,
     float voxel_edge_length, 
     float cell_size,
     int max_spheres,
-    int max_entries
+    float max_entries
 ){
     grid.cell_size = cell_size;
     grid.grid_dim_x = static_cast<int>(ceilf(voxel_edge_length / cell_size)); //    float voxel_edge_length = 50.0f;    float min_radius = 0.15f;
