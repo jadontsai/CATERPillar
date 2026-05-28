@@ -62,7 +62,7 @@ float bx, float by, float bz, float br){
     float dist2 = dx * dx + dy * dy + dz * dz;
     return dist2 < min_dist * min_dist;
 }
-}
+
 __global__
 void spatial_grid_collision_check_kernel(
     GpuSimulationState state,
@@ -145,7 +145,7 @@ void spatial_grid_collision_check_kernel(
                 }
             }
         }
-    }
+    }}
 __global__
 void selected_candidate_conflict_kernel(
     GpuSimulationState state){
@@ -192,8 +192,7 @@ void selected_candidate_conflict_kernel(
             return;
         }
     }
-}
-}// namespace
+}}// namespace
 
 void run_collision_check(
     GpuSimulationState& state,
