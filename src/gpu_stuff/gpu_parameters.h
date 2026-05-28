@@ -9,7 +9,7 @@ struct GpuParameters {
     float beta = 0.25f;
     float overlap_factor = 4.0f;
 
-    int max_spheres = 1000000;//small for now (not small anymore)
+    int max_spheres = 10000000;//small for now (not small anymore)
     int max_growth_fronts = 1000;
     int candidates_per_front = 1024;
     int max_steps = 100;
