@@ -220,14 +220,14 @@ void run_gpu_simulation(const GpuParameters& params) {
         commit_candidates_and_update_grid_gpu(state, grid);
     });
 
-    std::cout << "step " << i
-          << " gen_ms=" << gen_ms
-          << " inbox_ms=" << inbox_ms
-          << " collision_ms=" << collision_ms
-          << " select_ms=" << select_ms
-         // << " selected_conflict_ms=" << selected_conflict_ms
-          << " commit_ms=" << commit_ms
-          << std::endl;
+    // std::cout << "step " << i
+    //       << " gen_ms=" << gen_ms
+    //       << " inbox_ms=" << inbox_ms
+    //       << " collision_ms=" << collision_ms
+    //       << " select_ms=" << select_ms
+    //      // << " selected_conflict_ms=" << selected_conflict_ms
+    //       << " commit_ms=" << commit_ms
+    //       << std::endl;
     }
 
     write_final_csv("final.csv", state);
