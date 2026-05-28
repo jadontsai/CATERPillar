@@ -176,13 +176,11 @@ void selected_candidate_conflict_kernel(
         int cand_2 = state.candidates.selected_by_front[i];
 
         if (cand_2 < 0) {
-            std::cout<<"entered cand2 <0>"<< std::endl;
 
             continue;
         }
 
         if (state.candidates.valid[cand_2] == 0) {
-            std::cout<<"entered cand2 invalid"<< std::endl;
             continue;
         }
 
@@ -195,7 +193,6 @@ void selected_candidate_conflict_kernel(
             state.candidates.valid[cand_id] = 0;
             state.candidates.selected[cand_id] = 0;
             state.candidates.selected_by_front[front_id] = -1;
-            std::cout << "entered cand_id " << cand_id <<"and" << front_id << std::endl;
             return;
         }
     }
