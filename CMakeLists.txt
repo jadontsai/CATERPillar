@@ -76,6 +76,6 @@ if(CATERPILLAR_ENABLE_CUDA)
     set_target_properties(caterpillar_gpu PROPERTIES
         CUDA_STANDARD 17
         CUDA_STANDARD_REQUIRED ON
-        CUDA_ARCHITECTURES "80;86;90"
+        CUDA_ARCHITECTURES "60;70;80;86;90"
     )
 endif()
