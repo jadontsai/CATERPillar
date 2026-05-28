@@ -3,26 +3,26 @@ import matplotlib.pyplot as plt
 import numpy as np
 #quick and dirty 3D plotting
 # csv version
-df = pd.read_csv("final (14).csv")
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
-
-for object_id, g in df.groupby("object_id"):
-    g = g.sort_values("sphere_id")
-    ax.plot(g["x"], g["y"], g["z"], linewidth=1)
-    ax.scatter(g["x"], g["y"], g["z"], s=(g["r"]*10) ** 2)
-
-#swc version
-# df = pd.read_csv("glial_test_2.csv", sep=r"\s+")
+# df = pd.read_csv("final (14).csv")
 
 # fig = plt.figure()
 # ax = fig.add_subplot(111, projection="3d")
 
-# for object_id, g in df.groupby("component_id"):
-#     #g = g.sort_values("sphere_id") #should be linear already... (like increasing)
-#     ax.plot(g["X"], g["Y"], g["Z"], linewidth=1)
-#     ax.scatter(g["X"], g["Y"], g["Z"], s=(g["outer_radius"] * 20) ** 2)
+# for object_id, g in df.groupby("object_id"):
+#     g = g.sort_values("sphere_id")
+#     ax.plot(g["x"], g["y"], g["z"], linewidth=1)
+#     ax.scatter(g["x"], g["y"], g["z"], s=(g["r"]*10) ** 2)
+
+# swc version
+df = pd.read_csv("glial_test_2.csv", sep=r"\s+")
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+
+for object_id, g in df.groupby("cell_id"):
+#g = g.sort_values("") #should be linear already... (like increasing)
+    ax.plot(g["X"], g["Y"], g["Z"], linewidth=1)
+    ax.scatter(g["X"], g["Y"], g["Z"], s=(g["outer_radius"] * 5) ** 2)
 
 ax.set_xlabel("x")
 ax.set_ylabel("y")
