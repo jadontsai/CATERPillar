@@ -214,7 +214,7 @@ void initialize_many_axon_fronts_kernel(
     }
 
     float voxel_edge = state.params.voxel_edge_length;
-    int grid_width = state.params.grid_widthh;
+    int grid_width = state.params.grid_width;
     int ix = id % grid_width;
     int iy = id / grid_width;
     float spacing = state.params.spacing;
