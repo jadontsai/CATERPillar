@@ -142,7 +142,7 @@ void generate_blood_vessels_gpu(GpuSimulationState& state){
         cudaMemcpyDeviceToHost
     ));
 
-    int num_blood_vessels = state.params.num_blood_vessels;
+    int num_blood_vessels = state.params.num_pial_arteries;
     int chain_length = 32;
     int new_spheres = num_blood_vessels*chain_length;
     

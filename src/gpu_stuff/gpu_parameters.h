@@ -34,7 +34,7 @@ struct GpuParameters {
     //TEMP FOR DEBUGGING
     int num_axons = 225;
     int num_glial_somas = 0;
-    int num_pial_arteries = 4;
+    int num_pial_arteries = 10;
     int num_pial_veins = 2;
     int num_diving_arteries = 8;
     int num_ascending_veins = 4;
