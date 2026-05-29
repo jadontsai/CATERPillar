@@ -166,6 +166,9 @@ void run_gpu_simulation(const GpuParameters& params) {
     std::cout << "after allocate gpu state fcn" << std::endl;
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
+    generate_blood_vessels_gpu(state);
+    std::cout << "after generate bv gpu fcn" << std::endl;
+
     GpuSpatialGrid grid;
     std::cout << "after spatialgrid struct creation" << std::endl;
     CUDA_CHECK(cudaGetLastError());
@@ -188,37 +191,35 @@ void run_gpu_simulation(const GpuParameters& params) {
     CUDA_CHECK(cudaDeviceSynchronize());
     //so state is on the cpu stack, but it's pointing to GPU memory
 
-    initialize_scene_gpu(state);
-    std::cout << "after init scene" << std::endl;
-
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
-    std::cout << "after initislize_scene" << std::endl;
+    // initialize_scene_gpu(state);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
+    // std::cout << "after initislize_scene" << std::endl;
     build_gpu_spatial_grid(state, grid);
-    int runs = params.runs;
-    for (int i = 0; i <runs; ++i){
-    float gen_ms = time_cuda_stage_ms([&]() {
-        gpu_generate_candidates(state, i);
-    });
-
-    float inbox_ms = time_cuda_stage_ms([&]() {
-        run_in_box_check(state);
-    });
-
-    float collision_ms = time_cuda_stage_ms([&]() {
-        run_collision_check(state, grid);
-    });
-
-    float select_ms = time_cuda_stage_ms([&]() {
-        select_valid_candidate_gpu(state);
-    });
-    // float selected_conflict_ms = time_cuda_stage_ms([&]() {
-    //    run_selected_candidate_conflict_check(state);
+    // int runs = params.runs;
+    // for (int i = 0; i <runs; ++i){
+    // float gen_ms = time_cuda_stage_ms([&]() {
+    //     gpu_generate_candidates(state, i);
     // });
 
-    float commit_ms = time_cuda_stage_ms([&]() {
-        commit_candidates_and_update_grid_gpu(state, grid);
-    });
+    // float inbox_ms = time_cuda_stage_ms([&]() {
+    //     run_in_box_check(state);
+    // });
+
+    // float collision_ms = time_cuda_stage_ms([&]() {
+    //     run_collision_check(state, grid);
+    // });
+
+    // float select_ms = time_cuda_stage_ms([&]() {
+    //     select_valid_candidate_gpu(state);
+    // });
+    // // float selected_conflict_ms = time_cuda_stage_ms([&]() {
+    // //    run_selected_candidate_conflict_check(state);
+    // // });
+
+    // float commit_ms = time_cuda_stage_ms([&]() {
+    //     commit_candidates_and_update_grid_gpu(state, grid);
+    // });
 
     // std::cout << "step " << i
     //       << " gen_ms=" << gen_ms
@@ -228,7 +229,7 @@ void run_gpu_simulation(const GpuParameters& params) {
     //      // << " selected_conflict_ms=" << selected_conflict_ms
     //       << " commit_ms=" << commit_ms
     //       << std::endl;
-    }
+   // }
 
     write_final_csv("final.csv", state);
     std::cout << "after write_csv_final" << std::endl;

@@ -2,4 +2,4 @@
 
 #include "gpu_simulation_state.h"
 
-void generate_blood_vessels_gpu(GpuSimulationState state);
+void generate_blood_vessels_gpu(GpuSimulationState& state);

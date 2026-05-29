@@ -12,8 +12,14 @@ struct GpuParameters {
     float persistence = 0.9f;
     float bounds = 0.2f;
 
-    int max_spheres = 1000000000;//small for now (not small anymore)
-    float max_entries = 12000000000.0f;
+    //bv
+    float bv_norm_dist = 0.05f;
+    float bv_norm_norm =0.5f; //probably need a better name
+    float z_bottom = 0.05f;
+    float z_top = 0.95f;
+
+    int max_spheres = 10000000;//small for now (not small anymore)// cap seems to be 1000000000 (too big)
+    float max_entries = 1200000000.0f;
     int max_growth_fronts = 1000;
     int candidates_per_front = 1024;
     int max_steps = 100;
@@ -32,7 +38,7 @@ struct GpuParameters {
     int num_pial_veins = 2;
     int num_diving_arteries = 8;
     int num_ascending_veins = 4;
-    float artery_to_vein_ratio = 2.1f;//from paper
+    float artery_to_vein_ratio = 2.1f;//from paper, this is a value
     // MAB: fewer branches off diving arteries than ascending veins.
     int artery_branches_per_diving_vessel = 2;
     int vein_branches_per_ascending_vessel = 5;
@@ -49,7 +55,7 @@ struct GpuParameters {
     float penetrating_artery_radius = 1.5f;
     float penetrating_vein_radius = 2.0f;
     float capillary_radius = 0.4f;
-    float vessel_persistence = 0.97f;
+    float vessel_persistence = 0.97f;//should be very big need some tortuosity still though
     float capillary_persistence = 0.50f;
     int pial_vessel_steps = 40;
     int penetrating_vessel_steps = 80;
