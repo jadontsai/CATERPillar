@@ -9,6 +9,7 @@
 #include "gpu_in_box.h"
 #include "gpu_launch_config.h"
 #include "gpu_spatial_grid.h"
+#include "gpu_blood_vessels.h"
 
 #include <cuda_runtime.h>
 #include <iostream>
