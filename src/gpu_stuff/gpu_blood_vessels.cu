@@ -1,5 +1,6 @@
 #include "gpu_blood_vessels.h"
 #include "gpu_util.cuh"
+#include "gpu_launch_config.h"
 #include "gpu_object_types.h"
 #include <cuda_runtime.h>
 #include <stdexcept>
@@ -49,7 +50,7 @@ void generate_blood_vessels_kernel(
     int start_sphere_id
 ) {
     int vessel_id = blockIdx.x * blockDim.x + threadIdx.x;
-    int num_vessels = state.params.num_blood_vessels;
+    int num_vessels = state.params.num_pial_arteries;//for now
 
     if (vessel_id >= num_vessels) {
         return;
@@ -60,7 +61,7 @@ void generate_blood_vessels_kernel(
     float L = state.params.voxel_edge_length;
     int chain_length = 32;
 
-    float r = state.params.blood_vessel_radius;
+    float r = state.params.pial_artery_radius;
 
     //roots uniformly distributed (this might run into issues later with axon growth, oh well)
     int grid_width = state.params.grid_width;
@@ -150,7 +151,7 @@ void generate_blood_vessels_gpu(GpuSimulationState& state){
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     
-    int updated_sphere_count = current_sphere_count + new_spheres;
+    int updated_sphere_count = sphere_count + new_spheres;
 
     CUDA_CHECK(cudaMemcpy(
         state.spheres.count,
