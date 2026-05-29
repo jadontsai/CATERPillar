@@ -26,7 +26,7 @@ struct GpuParameters {
     int runs = 100000;
 
     //geometries
-    int grid_width =15; //initial placement width (total is this squared)
+    int grid_width =3; //initial placement width (total is this squared)
     float spacing = 5.0f; // min spacing (wait this is overconstrained)
 
     unsigned long long seed = 1;// apparently gpus like 64 bit seeds? anyways 1 is default
@@ -34,7 +34,7 @@ struct GpuParameters {
     //TEMP FOR DEBUGGING
     int num_axons = 225;
     int num_glial_somas = 0;
-    int num_pial_arteries = 10;
+    int num_pial_arteries = 8;
     int num_pial_veins = 2;
     int num_diving_arteries = 8;
     int num_ascending_veins = 4;
@@ -50,7 +50,7 @@ struct GpuParameters {
     float glial_process_radius_fraction = 0.25f;
     float glial_process_persistence = 0.70f;
     //blood
-    float pial_artery_radius = 3.0f;
+    float pial_artery_radius = 0.30f;
     float pial_vein_radius = 4.0f;
     float penetrating_artery_radius = 1.5f;
     float penetrating_vein_radius = 2.0f;
